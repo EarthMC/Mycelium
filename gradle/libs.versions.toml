@@ -1,0 +1,11 @@
+[libraries]
+jspecify = { group = "org.jspecify", name = "jspecify", version = "1.0.0" }
+lettuce = { group = "io.lettuce", name = "lettuce-core", version = "6.6.0.BETA2" }
+kryo = { group = "com.esotericsoftware", name = "kryo", version = "5.6.2" }
+
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version = "2.0.17" }
+log4j-slf4j = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.24.3" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version = "2.24.3" }
+log4j = { group = "org.apache.logging.log4j", name = "log4j-core", version = "2.24.3" }
+
+velocity-api = { group = "com.velocitypowered", name = "velocity-api", version = "3.4.0-SNAPSHOT" }
