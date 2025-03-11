@@ -47,7 +47,7 @@ public class ChannelIdentifier {
         return Objects.hashCode(channel);
     }
 
-    public abstract class Bound<T extends JsonSerializable<T>> extends ChannelIdentifier {
+    public abstract class Bound<T> extends ChannelIdentifier {
         protected Bound(String channel) {
             super(channel);
         }

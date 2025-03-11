@@ -4,6 +4,7 @@ import com.google.gson.JsonSyntaxException;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
+import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.api.serialization.JsonSerializable;
@@ -19,7 +20,7 @@ public class MicaMessagingRegistrar implements MessagingRegistrar {
     private final Logger logger = LoggerFactory.getLogger(MicaMessagingRegistrar.class);
 
     private final Map<String, ChannelIdentifier> identifierMap = new ConcurrentHashMap<>();
-    private final Map<ChannelIdentifier, Consumer<?>> listeners = new ConcurrentHashMap<>();
+    private final Map<ChannelIdentifier, Consumer<IncomingMessage<?>>> listeners = new ConcurrentHashMap<>();
 
     private final MyceliumClient client;
     private final StatefulRedisPubSubConnection<String, String> connection;
@@ -37,7 +38,7 @@ public class MicaMessagingRegistrar implements MessagingRegistrar {
                     return;
                 }
 
-                final Consumer<?> consumer = listeners.get(identifier);
+                final Consumer<IncomingMessage<?>> consumer = listeners.get(identifier);
                 if (consumer == null) {
                     return;
                 }
@@ -45,21 +46,21 @@ public class MicaMessagingRegistrar implements MessagingRegistrar {
                 if (identifier instanceof BoundChannelIdentifier<?> bound) {
                     try {
                         final Object deserialized = bound.gson().fromJson(message, bound.codec().typeClass());
-                        final Consumer<Object> objectConsumer = (Consumer<Object>) consumer;
+                        final Consumer<IncomingMessage<Object>> objectConsumer = (Consumer<IncomingMessage<Object>>) consumer;
 
                         objectConsumer.accept(deserialized);
                     } catch (JsonSyntaxException e) {
                         logger.warn("Exception occurred while receiving message on channel {}, payload: {}", channel, message);
                     }
                 } else {
-                    ((Consumer<String>) consumer).accept(message);
+                    ((Consumer<IncomingMessage<?>>) consumer).accept(message);
                 }
             }
         });
     }
 
     @Override
-    public void registerIncomingChannel(ChannelIdentifier identifier, Consumer<String> receiver) {
+    public void registerIncomingChannel(ChannelIdentifier identifier, Consumer<IncomingMessage<String>> receiver) {
         if (listeners.containsKey(identifier)) {
             return;
         }
@@ -85,7 +86,7 @@ public class MicaMessagingRegistrar implements MessagingRegistrar {
     }
 
     @Override
-    public <T extends JsonSerializable<T>> void registerBoundChannel(ChannelIdentifier.Bound<T> identifier, Consumer<T> receiver) {
+    public <T extends JsonSerializable<T>> void registerBoundChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver) {
         if (listeners.containsKey(identifier)) {
             return;
         }
