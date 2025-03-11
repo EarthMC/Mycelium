@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api;
+package net.earthmc.mycelium.api.network;
 
 /**
  * Represents a proxy frontend that players can connect to.

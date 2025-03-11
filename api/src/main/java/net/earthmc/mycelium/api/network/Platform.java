@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api;
+package net.earthmc.mycelium.api.network;
 
 public abstract class Platform {
     private final String environment = System.getProperty("mycelium.environment", "prod");

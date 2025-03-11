@@ -5,7 +5,6 @@ import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import net.earthmc.mycelium.client.redis.codec.RedisSerializable;
 import org.jspecify.annotations.NullMarked;
 
 import java.io.Closeable;

@@ -7,10 +7,8 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.earthmc.mycelium.api.Platform;
-import net.earthmc.mycelium.api.Proxy;
+import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.client.MyceliumClient;
-import net.earthmc.mycelium.client.redis.collection.RedisMirroredSet;
 import org.jetbrains.annotations.NotNull;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
@@ -20,11 +18,9 @@ public class VelocityPlatform extends Platform {
 
     private MyceliumClient client = MyceliumClient.newBuilder().build();
 
-    private RedisMirroredSet<Proxy> proxies = new RedisMirroredSet<>(client.client(), key("proxies"), net.earthmc.mycelium.client.impl.Proxy.CODEC);
-
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        proxies.add(new net.earthmc.mycelium.client.impl.Proxy(this.id()));
+
     }
 
     @Subscribe

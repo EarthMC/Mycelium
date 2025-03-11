@@ -2,11 +2,15 @@ plugins {
     `java-library`
 }
 
+repositories {
+    maven("https://repo.papermc.io/repository/maven-public/")
+}
+
 dependencies {
     api(project(":api"))
     api(libs.lettuce)
 
-    implementation(libs.kryo)
+    implementation(libs.gson)
 
     compileOnly(libs.slf4j.api)
 }

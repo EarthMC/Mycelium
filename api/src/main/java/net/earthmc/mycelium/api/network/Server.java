@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api;
+package net.earthmc.mycelium.api.network;
 
 /**
  * Represents a backend server that players can connect to.
