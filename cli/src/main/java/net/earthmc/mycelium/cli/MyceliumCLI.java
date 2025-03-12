@@ -4,6 +4,8 @@ import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.MyceliumProvider;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
+import net.earthmc.mycelium.api.network.Player;
+import net.earthmc.mycelium.api.proto.Command;
 import net.earthmc.mycelium.api.serialization.Codecs;
 import net.earthmc.mycelium.client.MyceliumClient;
 import org.slf4j.Logger;
@@ -37,7 +39,7 @@ public class MyceliumCLI {
             registrar.message(identifier, "hiiiiii").callback(10L, TimeUnit.SECONDS, response -> {
                 logger.info("The message I sent got a response: {}", response.data());
 
-                response.buildSyncResponse("thanks for responding!").send();
+                response.buildResponse("thanks for responding!").send();
             }).send();
         } else {
             logger.info("Receiving messages");
@@ -45,7 +47,7 @@ public class MyceliumCLI {
             registrar.registerIncomingChannel(identifier, message -> {
                 logger.info("Message received with data: {}", message.data());
 
-                final String response = "hi, I received your message (%s), thanks for talking to me (%s)".formatted(message.data(), instance.clientId());
+                final String response = "hi, I received your message (%s)".formatted(message.data());
 
                 message.buildResponse(response).callback(10L, TimeUnit.SECONDS, responseResponse -> {
                     logger.info("My response got a response: {}", responseResponse.data());
