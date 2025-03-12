@@ -20,9 +20,9 @@ public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
      *
      * @param typeClass The class to make the codec for.
      * @return A new simple json codec.
-     * @param <T> Class extending {@link JsonSerializable}
+     * @param <T> The class this codec is for.
      */
-    static <T extends JsonSerializable<T>> JsonCodec<T> simple(Class<T> typeClass) {
+    static <T> JsonCodec<T> simple(Class<T> typeClass) {
         return new Simple<>(typeClass);
     }
 
@@ -32,16 +32,11 @@ public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
      * It is not allowed to call this method from outside the class it is constructing the codec for.
      *
      * @return A new simple json codec.
-     * @param <T> Class extending {@link JsonSerializable}
+     * @param <T> The class this codec is for.
      */
     @SuppressWarnings("unchecked")
-    static <T extends JsonSerializable<T>> JsonCodec<T> simple() {
+    static <T> JsonCodec<T> simple() {
         final Class<?> callingClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-
-        // Basic check to make sure that
-        if (!JsonSerializable.class.isAssignableFrom(callingClass)) {
-            throw new IllegalCallerException("This method must be called by the class it is constructing a JsonCodec for, if you wish to use this for another class use simple(Class<T>)");
-        }
 
         return simple((Class<T>) callingClass);
     }

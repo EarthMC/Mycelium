@@ -1,12 +1,12 @@
 package net.earthmc.mycelium.api.messaging;
 
-import net.earthmc.mycelium.api.serialization.JsonSerializable;
+import net.earthmc.mycelium.api.serialization.JsonCodec;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChannelIdentifier {
-    private static final String DEFAULT_NAMESPACE = "mycelium";
+    public static final String REDIS_CHANNEL_PREFIX = "mycelium:messaging:";
 
     private final String channel;
 
@@ -15,15 +15,11 @@ public class ChannelIdentifier {
     }
 
     public static ChannelIdentifier identifier(final String channel) {
+        return new ChannelIdentifier(REDIS_CHANNEL_PREFIX + channel);
+    }
+
+    public static ChannelIdentifier absolute(final String channel) {
         return new ChannelIdentifier(channel);
-    }
-
-    public static ChannelIdentifier namespaced(final String namespace, final String value) {
-        return new ChannelIdentifier(namespace + ":" + value);
-    }
-
-    public static ChannelIdentifier defaultNamespace(final String value) {
-        return namespaced(DEFAULT_NAMESPACE, value);
     }
 
     public String channel() {
@@ -52,13 +48,15 @@ public class ChannelIdentifier {
             super(channel);
         }
 
+        public abstract JsonCodec<T> codec();
+
         /**
          * Utility method to more easily register this channel.
          *
          * @param receiver A consumer for incoming messages on this channel.
          *
-         * @see MessagingRegistrar#registerBoundChannel(Bound, Consumer)
+         * @see MessagingRegistrar#registerIncomingChannel(Bound, Consumer)
          */
-        public abstract void register(Consumer<T> receiver);
+        public abstract void registerChannel(Consumer<IncomingMessage<T>> receiver);
     }
 }

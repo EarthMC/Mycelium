@@ -12,7 +12,11 @@ dependencies {
 
     implementation(libs.gson)
 
-    compileOnly(libs.slf4j.api)
+    // todo: sort out dependencies for platforms that already have these
+    implementation(libs.log4j)
+    implementation(libs.slf4j.api)
+    implementation(libs.log4j.slf4j)
+    implementation(libs.log4j.api)
 }
 
 tasks {

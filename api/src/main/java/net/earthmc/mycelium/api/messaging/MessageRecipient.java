@@ -1,13 +1,10 @@
 package net.earthmc.mycelium.api.messaging;
 
-import net.earthmc.mycelium.api.serialization.JsonSerializable;
+import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
+import net.earthmc.mycelium.api.serialization.JsonCodec;
 
 public interface MessageRecipient {
-    // CallbackCompletable<MessageResponse<String>> sendAndAwait(ChannelIdentifier identifier, String data);
+    <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(T data);
 
-    // <T extends JsonSerializable<T>> CallbackCompletable<MessageResponse<T>> sendAndAwait(ChannelIdentifier.Bound<T> identifier, T data);
-
-    void sendMessage(ChannelIdentifier identifier, String data);
-
-    <T extends JsonSerializable<T>> void sendMessage(ChannelIdentifier.Bound<T> identifier, T data);
+    <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(JsonCodec<T> identifier, T data);
 }

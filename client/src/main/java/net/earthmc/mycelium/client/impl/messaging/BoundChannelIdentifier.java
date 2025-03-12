@@ -1,18 +1,15 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.Strictness;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
+import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import net.earthmc.mycelium.api.serialization.JsonSerializable;
+import net.earthmc.mycelium.client.impl.serialization.GsonHelper;
 
 import java.util.function.Consumer;
 
-public class BoundChannelIdentifier<T extends JsonSerializable<T>> extends ChannelIdentifier.Bound<T> {
-    private static final Gson DEFAULT_GSON = newGsonBuilder().create();
-
+public class BoundChannelIdentifier<T> extends ChannelIdentifier.Bound<T> {
     private final JsonCodec<T> codec;
     private final MessagingRegistrar registrar;
     private final Gson gsonInstance;
@@ -23,12 +20,13 @@ public class BoundChannelIdentifier<T extends JsonSerializable<T>> extends Chann
         this.registrar = registrar;
 
         if (codec instanceof JsonCodec.Simple<T>) {
-            this.gsonInstance = DEFAULT_GSON;
+            this.gsonInstance = GsonHelper.DEFAULT_INSTANCE;
         } else {
-            this.gsonInstance = newGsonBuilder().registerTypeAdapter(codec.typeClass(), codec).create();
+            this.gsonInstance = GsonHelper.forCodec(codec);
         }
     }
 
+    @Override
     public JsonCodec<T> codec() {
         return codec;
     }
@@ -41,11 +39,7 @@ public class BoundChannelIdentifier<T extends JsonSerializable<T>> extends Chann
     }
 
     @Override
-    public void register(Consumer<T> receiver) {
-        this.registrar.registerBoundChannel(this, receiver);
-    }
-
-    private static GsonBuilder newGsonBuilder() {
-        return new GsonBuilder().serializeNulls().setStrictness(Strictness.STRICT);
+    public void registerChannel(Consumer<IncomingMessage<T>> receiver) {
+        this.registrar.registerIncomingChannel(this, receiver);
     }
 }
