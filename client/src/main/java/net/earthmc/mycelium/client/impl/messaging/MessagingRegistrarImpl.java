@@ -36,7 +36,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
             @SuppressWarnings("unchecked")
             @Override
             public void message(String channel, InternalMessage message) {
-                if (message.source.equals(client.clientId().toString())) {
+                if (message.source.equals(client.clientId())) {
                     return;
                 }
 

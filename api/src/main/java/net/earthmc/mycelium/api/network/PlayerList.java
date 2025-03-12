@@ -15,6 +15,11 @@ public interface PlayerList {
     Collection<Player> players();
 
     /**
+     * @return The number of players currently online on the network.
+     */
+    int playerCount();
+
+    /**
      * @param name The name of the player.
      * @return The player with the given name, or {@code null} if not found.
      */

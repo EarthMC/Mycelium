@@ -1,3 +1,3 @@
 rootProject.name = "Mycelium"
 
-include("api", "client", "platform:velocity")
+include("api", "client", "cli", "platform:velocity")

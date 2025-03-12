@@ -49,7 +49,7 @@ public class CallbackProvider implements Closeable {
         this.connection.addListener(new RedisPubSubAdapter<>() {
             @Override
             public void message(String channel, InternalMessage message) {
-                if (message.source.equals(client.clientId().toString())) {
+                if (message.source.equals(client.clientId())) {
                     return;
                 }
 

@@ -102,7 +102,7 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
             responseAddress = this.replyChannel.channel();
         }
 
-        return new InternalMessage(responseAddress, client.clientId().toString(), messageReference, payload);
+        return new InternalMessage(responseAddress, client.clientId(), messageReference, payload);
     }
 
     private Boolean getSyncResult(InternalMessage message) {
