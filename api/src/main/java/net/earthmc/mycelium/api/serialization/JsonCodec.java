@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 
 @NullMarked
 public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
-    Class<T> typeClass();
+    Type type();
 
     /**
      * Creates a new instance of a 'simple' json codec, meant for objects that do not have complex serialization requirements.
@@ -60,8 +60,13 @@ public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
         }
 
         @Override
-        public Class<T> typeClass() {
+        public Type type() {
             return this.typeClass;
+        }
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName() + "{" + this.type().getTypeName() + "}";
         }
     }
 }

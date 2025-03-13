@@ -17,6 +17,6 @@ public class GsonHelper {
             return DEFAULT_INSTANCE;
         }
 
-        return newGsonBuilder().registerTypeAdapter(codec.typeClass(), codec).create();
+        return newGsonBuilder().registerTypeAdapter(codec.type(), codec).create();
     }
 }

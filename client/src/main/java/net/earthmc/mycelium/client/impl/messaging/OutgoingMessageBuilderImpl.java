@@ -86,7 +86,7 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
         if (data instanceof String string) {
             payload = GsonHelper.DEFAULT_INSTANCE.toJson(string, String.class);
         } else {
-            payload = GsonHelper.forCodec(this.codec).toJson(data, this.codec == null ? data.getClass() : this.codec.typeClass());
+            payload = GsonHelper.forCodec(this.codec).toJson(data, this.codec == null ? data.getClass() : this.codec.type());
         }
 
         return createMessageForPayload(payload);

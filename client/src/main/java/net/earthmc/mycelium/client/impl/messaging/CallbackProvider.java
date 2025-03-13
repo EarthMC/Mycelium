@@ -1,6 +1,6 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParseException;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
@@ -60,9 +60,9 @@ public class CallbackProvider implements Closeable {
 
                 Object deserialized;
                 try {
-                    deserialized = GsonHelper.forCodec(callback.codec()).fromJson(message.payload, callback.codec().typeClass());
-                } catch (JsonSyntaxException e) {
-                    logger.error("Failed to deserialize callback with message reference {}", message.messageReference, e);
+                    deserialized = GsonHelper.forCodec(callback.codec()).fromJson(message.payload, callback.codec().type());
+                } catch (JsonParseException e) {
+                    logger.error("Failed to deserialize callback with message reference {} (using codec {})", message.messageReference, callback.codec(), e);
                     return;
                 }
 

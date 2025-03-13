@@ -52,7 +52,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
 
                 if (identifier instanceof BoundChannelIdentifier<?> bound) {
                     try {
-                        final Object deserialized = bound.gson().fromJson(message.payload, bound.codec().typeClass());
+                        final Object deserialized = bound.gson().fromJson(message.payload, bound.codec().type());
 
                         consumer.accept(new IncomingMessageImpl<>(client, message, (JsonCodec<? super Object>) bound.codec(), deserialized));
                     } catch (JsonSyntaxException e) {

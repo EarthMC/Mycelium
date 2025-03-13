@@ -36,7 +36,7 @@ public class IncomingMessageImpl<T> implements IncomingMessage<T> {
 
         final Class<N> newDataClass = (Class<N>) data.getClass();
         JsonCodec<N> newDataCodec = null;
-        if (newDataClass.equals(this.codec.typeClass())) {
+        if (newDataClass.equals(this.codec.type())) {
             newDataCodec = (JsonCodec<N>) this.codec;
         }
 
@@ -56,7 +56,7 @@ public class IncomingMessageImpl<T> implements IncomingMessage<T> {
 
         final Class<N> newDataClass = (Class<N>) data.getClass();
         JsonCodec<N> newDataCodec = null;
-        if (newDataClass.equals(this.codec.typeClass())) {
+        if (newDataClass.equals(this.codec.type())) {
             newDataCodec = (JsonCodec<N>) this.codec;
         }
 
