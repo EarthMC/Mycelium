@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  *
  */
 public class CallbackProvider implements Closeable {
-    private final Logger logger = LoggerFactory.getLogger(CallbackProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CallbackProvider.class);
 
     private final Map<String, Callback<?>> callbacks = new ConcurrentHashMap<>();
     private final MyceliumClient client;
@@ -58,18 +58,10 @@ public class CallbackProvider implements Closeable {
                     return;
                 }
 
-                Object deserialized;
                 try {
-                    deserialized = GsonHelper.forCodec(callback.codec()).fromJson(message.payload, callback.codec().type());
-                } catch (JsonParseException e) {
-                    logger.error("Failed to deserialize callback with message reference {} (using codec {})", message.messageReference, callback.codec(), e);
-                    return;
-                }
-
-                try {
-                    callback.consumer().accept(new IncomingMessageImpl<>(client, message, convert(callback.codec()), convert(deserialized)));
+                    callback.handle(client, message);
                 } catch (Throwable throwable) {
-                    logger.error("An exception occurred while handling callback with id {}", message.messageReference, throwable);
+                    LOGGER.error("An exception occurred while handling callback with id {}", message.messageReference, throwable);
                 }
             }
         });
@@ -103,10 +95,17 @@ public class CallbackProvider implements Closeable {
         callbacks.values().removeIf(next -> next.expiration.isBefore(now));
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> T convert(Object object) {
-        return (T) object;
-    }
+    private record Callback<T>(Instant expiration, JsonCodec<T> codec, Consumer<IncomingMessage<T>> consumer) {
+        void handle(MyceliumClient client, InternalMessage message) {
+            T deserialized;
+            try {
+                deserialized = GsonHelper.forCodec(this.codec).fromJson(message.payload, this.codec.type());
+            } catch (JsonParseException e) {
+                LOGGER.error("Failed to deserialize callback with message reference {} (using codec {})", message.messageReference, this.codec, e);
+                return;
+            }
 
-    private record Callback<T>(Instant expiration, JsonCodec<T> codec, Consumer<IncomingMessage<T>> consumer) {}
+            consumer.accept(new IncomingMessageImpl<>(client, message, this.codec, deserialized));
+        }
+    }
 }

@@ -25,16 +25,26 @@ public interface MessagingRegistrar {
      *
      * @param identifier The bound channel identifier.
      * @param receiver A consumer for incoming messages on this channel.
+     * @return A listener instance for use in un-registration.
      * @param <T> The type of the data being sent.
      */
-    <T> void registerIncomingChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver);
+    <T> Listener registerIncomingChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver);
 
+    /**
+     * Creates a new builder for an outgoing message to the specified channel.
+     *
+     * @param identifier The channel identifier this message will be sent from.
+     * @param data The data to send.
+     * @return A new outgoing message builder.
+     * @param <T> The type of the data being sent.
+     */
     <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data);
 
     /**
      * Unregisters all listeners for the given channel.
      *
      * @param identifiers The channel identifiers to unregister.
+     * @return Whether any listeners were unregistered.
      */
-    void unregisterIncomingChannels(ChannelIdentifier... identifiers);
+    boolean unregisterIncomingChannels(ChannelIdentifier... identifiers);
 }
