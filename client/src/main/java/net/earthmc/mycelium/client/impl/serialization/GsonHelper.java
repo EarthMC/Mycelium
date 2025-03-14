@@ -9,7 +9,13 @@ public class GsonHelper {
     public static final Gson DEFAULT_INSTANCE = newGsonBuilder().create();
 
     public static GsonBuilder newGsonBuilder() {
-        return new GsonBuilder().serializeNulls().setStrictness(Strictness.STRICT);
+        final GsonBuilder builder =  new GsonBuilder().serializeNulls();
+
+        try {
+            builder.setStrictness(Strictness.STRICT);
+        } catch (NoSuchMethodError ignored) {}
+
+        return builder;
     }
 
     public static Gson forCodec(JsonCodec<?> codec) {
