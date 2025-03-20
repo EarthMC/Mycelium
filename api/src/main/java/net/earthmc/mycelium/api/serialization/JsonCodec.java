@@ -11,8 +11,16 @@ import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.Type;
 
+/**
+ * Describes a codec that is capable of (de)serializing an object to/from JSON.
+ *
+ * @param <T> The object type.
+ */
 @NullMarked
 public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
+    /**
+     * @return The type for {@link T}
+     */
     Type type();
 
     /**
@@ -29,7 +37,7 @@ public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
     /**
      * Creates a new instance of a 'simple' json codec, meant for objects that do not have complex serialization requirements.
      * <p>
-     * It is not allowed to call this method from outside the class it is constructing the codec for.
+     * This method is caller sensitive, so it is not allowed to call this method from outside the class it is constructing the codec for.
      *
      * @return A new simple json codec.
      * @param <T> The class this codec is for.

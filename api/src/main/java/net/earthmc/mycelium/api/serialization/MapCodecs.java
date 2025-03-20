@@ -14,16 +14,51 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+/**
+ * A utility class for creating codecs for maps with different key & value codecs.
+ *
+ * @see CollectionCodecs
+ */
 public final class MapCodecs {
+    /**
+     * Constructs a new map codec using a default linked map implementation.
+     *
+     * @param keyCodec The codec to use for serializing keys.
+     * @param valueCodec The codec to use for serializing values.
+     * @return
+     * @param <K> Key type, must be serializable as a json primitive.
+     * @param <V> Value type.
+     */
     public static <K, V> JsonCodec<Map<K, V>> map(JsonCodec<K> keyCodec, JsonCodec<V> valueCodec) {
-        return collection(keyCodec, valueCodec, LinkedTreeMap.class, LinkedTreeMap::new);
+        return create(keyCodec, valueCodec, LinkedTreeMap.class, LinkedTreeMap::new);
     }
 
+    /**
+     * Constructs a new map codec using a concurrent map implementation.
+     *
+     * @param keyCodec The codec to use for serializing keys.
+     * @param valueCodec The codec to use for serializing values.
+     * @return
+     * @param <K> Key type, must be serializable as a json primitive.
+     * @param <V> Value type.
+     */
     public static <K, V> JsonCodec<Map<K, V>> concurrent(JsonCodec<K> keyCodec, JsonCodec<V> valueCodec) {
-        return collection(keyCodec, valueCodec, ConcurrentHashMap.class, ConcurrentHashMap::new);
+        return create(keyCodec, valueCodec, ConcurrentHashMap.class, ConcurrentHashMap::new);
     }
 
-    public static <K, V, M extends Map<K, V>> JsonCodec<M> collection(JsonCodec<K> keyCodec, JsonCodec<V> valueCodec, Class<?> mapType, Supplier<M> mapSupplier) {
+    /**
+     * Constructs a new map codec.
+     *
+     * @param keyCodec The codec to use for serializing keys.
+     * @param valueCodec The codec to use for serializing values.
+     * @param mapType The class of the map implementation.
+     * @param mapSupplier A supplier that creates new instances of the map implementation.
+     * @return A new map codec for the given codecs.
+     * @param <K> Key type, must be serializable as a json primitive.
+     * @param <V> Value type.
+     * @param <M> Map type.
+     */
+    public static <K, V, M extends Map<K, V>> JsonCodec<M> create(JsonCodec<K> keyCodec, JsonCodec<V> valueCodec, Class<?> mapType, Supplier<M> mapSupplier) {
         return new MapCodec<>(keyCodec, valueCodec, TypeToken.getParameterized(mapType, keyCodec.type(), valueCodec.type()).getType(), mapSupplier);
     }
 
