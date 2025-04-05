@@ -14,3 +14,9 @@ dependencies {
 application {
     mainClass = "net.earthmc.mycelium.cli.MyceliumCLI"
 }
+
+tasks {
+    shadowJar {
+        dependsOn(project(":client").tasks.shadowJar)
+    }
+}

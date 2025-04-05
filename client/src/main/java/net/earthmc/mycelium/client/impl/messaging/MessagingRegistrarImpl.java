@@ -84,7 +84,6 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
             listeners.computeIfAbsent(identifier.channel(), k -> new ArrayList<>()).add(listener);
         }
 
-
         this.connection.async().subscribe(identifier.channel());
         return listener;
     }

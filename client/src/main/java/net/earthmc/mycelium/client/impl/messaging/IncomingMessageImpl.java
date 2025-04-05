@@ -74,6 +74,4 @@ public class IncomingMessageImpl<T> implements IncomingMessage<T> {
             throw new IllegalStateException("This message is not accepting responses.");
         }
     }
-
-
 }

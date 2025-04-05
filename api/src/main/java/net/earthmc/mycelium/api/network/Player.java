@@ -39,8 +39,8 @@ public interface Player extends MessageRecipient {
     boolean isOnline();
 
     /**
-     * Runs a command for the player on the
-     * @param command
+     * Runs a command for the player.
+     * @param command The command to run, whether it's executed on the server or proxy can be specified during creation.
      */
     void runCommand(Command command);
 }

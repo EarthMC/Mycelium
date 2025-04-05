@@ -5,10 +5,8 @@ import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.impl.serialization.RedisCodecs;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.ByteBuffer;
-
 /**
- * An internal
+ * An internal message that is sent across the network.
  */
 public class InternalMessage {
     public static final JsonCodec<InternalMessage> CODEC = JsonCodec.simple();

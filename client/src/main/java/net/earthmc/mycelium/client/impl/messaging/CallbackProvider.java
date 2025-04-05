@@ -38,7 +38,6 @@ public class CallbackProvider implements Closeable {
     private final StatefulRedisPubSubConnection<String, InternalMessage> connection;
     private final String channel;
 
-
     public CallbackProvider(MyceliumClient client) {
         this.client = client;
 
