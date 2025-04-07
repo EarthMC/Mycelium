@@ -75,6 +75,11 @@ public class RedisMirroredSet<T> extends RedisRemoteSet<T> {
     }
 
     @Override
+    public boolean contains(Object element) {
+        return this.backing.contains(element);
+    }
+
+    @Override
     public Iterator<T> iterator() {
         return backing.iterator();
     }

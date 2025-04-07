@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChannelIdentifier {
-    public static final String REDIS_CHANNEL_PREFIX = "mycelium:messaging:";
+    public static final String REDIS_CHANNEL_PREFIX = "m:messaging:";
 
     private final String channel;
 

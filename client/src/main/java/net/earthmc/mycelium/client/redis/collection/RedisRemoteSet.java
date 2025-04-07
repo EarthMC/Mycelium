@@ -55,11 +55,21 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
     @Override
     @SuppressWarnings("unchecked")
     public boolean remove(Object element) {
-        if (closed) {
+        if (this.closed) {
             return false;
         }
 
         return this.commands.srem(this.redisKey, (T) element) == 1;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean contains(Object element) {
+        if (this.closed) {
+            return false;
+        }
+
+        return this.commands.sismember(this.redisKey, (T) element);
     }
 
     @Override

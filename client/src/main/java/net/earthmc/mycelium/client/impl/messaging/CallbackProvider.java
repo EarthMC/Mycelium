@@ -40,6 +40,7 @@ public class CallbackProvider implements Closeable {
 
     public CallbackProvider(MyceliumClient client) {
         this.client = client;
+        this.channel = "m:" + client.network().id() + ":clients:" + client.clientId() + ":callback";
 
         this.cleanupPool.scheduleAtFixedRate(this::cleanupExpiredCallbacks, 10L, 10L, TimeUnit.SECONDS);
 
@@ -65,8 +66,7 @@ public class CallbackProvider implements Closeable {
             }
         });
 
-        this.channel = "mycelium:clients:" + client.clientId() + ":callback";
-        this.connection.async().subscribe(channel);
+        this.connection.async().subscribe(this.channel);
     }
 
     public <T> void await(String messageUUID, JsonCodec<T> codec, long expireTime, TimeUnit unit, Consumer<IncomingMessage<T>> callback) {

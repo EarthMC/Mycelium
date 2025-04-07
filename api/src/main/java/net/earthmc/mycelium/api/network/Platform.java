@@ -3,7 +3,7 @@ package net.earthmc.mycelium.api.network;
 public abstract class Platform {
     private final String environment = System.getProperty("mycelium.environment", "prod");
     private final String id = System.getProperty("mycelium.id", System.getProperty("name", "unknown"));
-    private final String keyPrefix = "mycelium:" + environment + ":" + platformIdentifier() + ":" + id + ":";
+    private final String keyPrefix = "m:" + environment + ":" + platformIdentifier() + ":" + id + ":";
 
     public String key(String fieldName) {
         return keyPrefix + fieldName;

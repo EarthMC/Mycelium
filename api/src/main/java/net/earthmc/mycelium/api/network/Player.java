@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.api.network;
 
-import net.earthmc.mycelium.api.messaging.MessageRecipient;
 import net.earthmc.mycelium.api.proto.Command;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -11,7 +10,7 @@ import java.util.UUID;
  * Represents a player connected to the network.
  */
 @NullMarked
-public interface Player extends MessageRecipient {
+public interface Player {
     /**
      * @return The name of this player.
      */
@@ -31,6 +30,7 @@ public interface Player extends MessageRecipient {
     /**
      * @return The proxy this player is connected through, or {@code null} if this player is not connected to the network or through a proxy.
      */
+    @Nullable
     Proxy proxy();
 
     /**

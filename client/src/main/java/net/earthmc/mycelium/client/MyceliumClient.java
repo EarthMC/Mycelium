@@ -5,6 +5,7 @@ import io.lettuce.core.RedisURI;
 import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
+import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     private final MessagingRegistrarImpl messagingRegistrar;
     private final CallbackProvider callbackProvider;
+    private final NetworkImpl network;
 
     private final String clientId = UUID.randomUUID().toString();
 
@@ -28,6 +30,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.client = RedisClient.create(RedisURI.create(redisURI));
         this.messagingRegistrar = new MessagingRegistrarImpl(this);
         this.callbackProvider = new CallbackProvider(this);
+        this.network = new NetworkImpl(networkId, this);
     }
 
     public RedisClient client() {
@@ -44,7 +47,7 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     @Override
     public Network network() {
-        return null;
+        return this.network;
     }
 
     @Override

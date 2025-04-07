@@ -30,7 +30,7 @@ public interface Network extends PlayerList {
     /**
      * @return An unmodifiable collection of active backends.
      */
-    Collection<Server> backends();
+    Collection<Server> servers();
 
     /**
      * @param id The server id to search by.
