@@ -25,7 +25,7 @@ public final class MapCodecs {
      *
      * @param keyCodec The codec to use for serializing keys.
      * @param valueCodec The codec to use for serializing values.
-     * @return
+     * @return A new map codec, where keys and values are serialized using the given codecs.
      * @param <K> Key type, must be serializable as a json primitive.
      * @param <V> Value type.
      */
@@ -38,7 +38,7 @@ public final class MapCodecs {
      *
      * @param keyCodec The codec to use for serializing keys.
      * @param valueCodec The codec to use for serializing values.
-     * @return
+     * @return A new map codec, where keys and values are serialized using the given codecs.
      * @param <K> Key type, must be serializable as a json primitive.
      * @param <V> Value type.
      */
@@ -53,7 +53,7 @@ public final class MapCodecs {
      * @param valueCodec The codec to use for serializing values.
      * @param mapType The class of the map implementation.
      * @param mapSupplier A supplier that creates new instances of the map implementation.
-     * @return A new map codec for the given codecs.
+     * @return A new map codec, where keys and values are serialized using the given codecs.
      * @param <K> Key type, must be serializable as a json primitive.
      * @param <V> Value type.
      * @param <M> Map type.
