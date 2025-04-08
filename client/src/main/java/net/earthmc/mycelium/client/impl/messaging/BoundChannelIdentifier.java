@@ -3,6 +3,7 @@ package net.earthmc.mycelium.client.impl.messaging;
 import com.google.gson.Gson;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
+import net.earthmc.mycelium.api.messaging.Listener;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.impl.serialization.GsonHelper;
@@ -39,7 +40,12 @@ public class BoundChannelIdentifier<T> extends ChannelIdentifier.Bound<T> {
     }
 
     @Override
-    public void registerChannel(Consumer<IncomingMessage<T>> receiver) {
-        this.registrar.registerIncomingChannel(this, receiver);
+    public Listener registerPlatform(Consumer<IncomingMessage<T>> receiver) {
+        return this.registrar.registerPlatformChannel(this, receiver);
+    }
+
+    @Override
+    public Listener register(Consumer<IncomingMessage<T>> receiver) {
+        return this.registrar.registerChannel(this, receiver);
     }
 }

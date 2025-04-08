@@ -23,5 +23,9 @@
 
 `m:{env}:clients:{client}:callback`: Callback channel, registered by each client.
 
+`m:{env}:{proxy|server}:{id}:channels:{channel}`: Format for channels registered through the api.
+
+`m:{env}:channels:{id}`: Format for global channels regisered through the api.
+
 ## Proxy implementation
 

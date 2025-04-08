@@ -8,8 +8,10 @@ import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.Listener;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
+import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.redis.RedisKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,13 +63,31 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
         boolean removed = false;
 
         for (final ChannelIdentifier identifier : identifiers) {
-            if (listeners.remove(identifier.channel()) != null) {
+            final String canonicalChannel = makePlatformKey(identifier.channel());
+            final String globalChannel = makeGlobalKey(identifier.channel());
+
+            if (listeners.remove(canonicalChannel) != null) {
                 removed = true;
-                this.connection.async().unsubscribe(identifier.channel());
+                this.connection.sync().unsubscribe(canonicalChannel);
+            } else if (listeners.remove(globalChannel) != null) {
+                removed = true;
+                this.connection.sync().unsubscribe(globalChannel);
             }
         }
 
         return removed;
+    }
+
+    public String globalChannelPrefix() {
+        return RedisKey.create(this.client.network().id(), "channels");
+    }
+
+    public String makeGlobalKey(String channel) {
+        return globalChannelPrefix() + ":" + channel;
+    }
+
+    public String makePlatformKey(String channel) {
+        return this.client.platform().key("channels:" + channel);
     }
 
     @Override
@@ -76,21 +96,36 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
     }
 
     @Override
-    public <T> Listener registerIncomingChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver) {
-        final RegisteredListener<T> listener = new RegisteredListener<>(this, (BoundChannelIdentifier<T>) identifier, receiver);
+    public <T> Listener registerPlatformChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver) {
+        final Platform platform = this.client.platform();
+
+        if (platform.type() == Platform.Type.STANDALONE) {
+            throw new IllegalStateException("Cannot register a platform-relative channel on a standalone platform.");
+        }
+
+        return registerInternal(makePlatformKey(identifier.channel()), identifier, receiver);
+    }
+
+    @Override
+    public <T> Listener registerChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver) {
+        return registerInternal(makeGlobalKey(identifier.channel()), identifier, receiver);
+    }
+
+    private <T> Listener registerInternal(String fullChannel, ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver) {
+        final RegisteredListener<T> listener = new RegisteredListener<>(this, (BoundChannelIdentifier<T>) identifier, fullChannel, receiver);
 
         // Synchronize on listeners as a write lock
         synchronized (this.listeners) {
-            listeners.computeIfAbsent(identifier.channel(), k -> new ArrayList<>()).add(listener);
+            listeners.computeIfAbsent(fullChannel, k -> new ArrayList<>()).add(listener);
         }
 
-        this.connection.async().subscribe(identifier.channel());
+        this.connection.async().subscribe(fullChannel);
         return listener;
     }
 
     @Override
     public <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
-        return new OutgoingMessageBuilderImpl<>(this.client, newMessageReference(), identifier.channel(), true, data, identifier.codec());
+        return new OutgoingMessageBuilderImpl<>(this.client, newMessageReference(), makeGlobalKey(identifier.channel()), true, data, identifier.codec());
     }
 
     public String newMessageReference() {
@@ -99,7 +134,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
 
     public boolean unregisterListener(RegisteredListener<?> listener) {
         synchronized (this.listeners) {
-            final List<RegisteredListener<?>> channelListeners = this.listeners.get(listener.identifier().channel());
+            final List<RegisteredListener<?>> channelListeners = this.listeners.get(listener.canonicalChannel());
             if (channelListeners == null) {
                 return false;
             }

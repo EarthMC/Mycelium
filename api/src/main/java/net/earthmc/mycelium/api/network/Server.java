@@ -1,11 +1,12 @@
 package net.earthmc.mycelium.api.network;
 
+import net.earthmc.mycelium.api.messaging.MessageRecipient;
 import net.earthmc.mycelium.api.proto.ConsoleCommand;
 
 /**
  * Represents a backend server that players can connect to.
  */
-public interface Server extends PlayerList {
+public interface Server extends PlayerList, MessageRecipient {
     /**
      * @return The server name.
      */

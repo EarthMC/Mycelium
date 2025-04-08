@@ -22,13 +22,29 @@ public interface MessagingRegistrar {
 
     /**
      * Registers a callback for a bound channel.
+     * <p>
+     * The registered channel is platform-relative, which means it will be prefixed with a unique prefix. Data may be sent to this channel
+     * using the {@link MessageRecipient} class and using the same channel identifier.
+     *
+     * @param identifier The bound channel identifier.
+     * @param receiver A consumer for incoming messages on this channel.
+     * @return A listener instance for use in un-registration.
+     * @param <T> The type of the data being sent.
+     * @throws IllegalStateException If the platform this is called on is not a proxy or server one.
+     */
+    <T> Listener registerPlatformChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver);
+
+    /**
+     * Registers a callback for a bound channel.
+     * <p>
+     * Data may be sent through this channel using {@link #message(ChannelIdentifier.Bound, Object)} with the same identifier as used here.
      *
      * @param identifier The bound channel identifier.
      * @param receiver A consumer for incoming messages on this channel.
      * @return A listener instance for use in un-registration.
      * @param <T> The type of the data being sent.
      */
-    <T> Listener registerIncomingChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver);
+    <T> Listener registerChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver);
 
     /**
      * Creates a new builder for an outgoing message to the specified channel.

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
-public record RegisteredListener<T>(MessagingRegistrarImpl registrar, BoundChannelIdentifier<T> identifier, Consumer<IncomingMessage<T>> consumer) implements Listener {
+public record RegisteredListener<T>(MessagingRegistrarImpl registrar, BoundChannelIdentifier<T> identifier, String canonicalChannel, Consumer<IncomingMessage<T>> consumer) implements Listener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegisteredListener.class);
 
     public void processIncoming(MyceliumClient client, InternalMessage incoming) {

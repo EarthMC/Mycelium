@@ -70,7 +70,7 @@ public class MyceliumCLI {
         } else {
             logger.info("Receiving messages");
 
-            registrar.registerIncomingChannel(mapIdentifier, message -> {
+            registrar.registerChannel(mapIdentifier, message -> {
                 logger.info("Message received with data: {}", message.data());
 
                 final String response = "hi, I received your message (%s)".formatted(message.data());

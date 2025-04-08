@@ -15,7 +15,7 @@ public interface OutgoingMessageBuilder<R, T> {
      * @param identifier The channel, or {@code null} to indicate no reply is expected.
      * @return {@code this}
      *
-     * @see MessagingRegistrar#registerIncomingChannel(ChannelIdentifier.Bound, Consumer)
+     * @see MessagingRegistrar#registerChannel(ChannelIdentifier.Bound, Consumer)
      */
     OutgoingMessageBuilder<R, T> replyChannel(@Nullable ChannelIdentifier identifier);
 

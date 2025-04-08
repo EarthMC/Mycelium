@@ -50,7 +50,7 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
     @Override
     public <N> OutgoingMessageBuilder<R, T> callback(TemporalAmount duration, JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer) {
         registerCallback = () -> {
-            replyChannel(ChannelIdentifier.absolute(client.callbacks().channel()));
+            replyChannel(ChannelIdentifier.identifier(client.callbacks().channel()));
             final Duration d = duration instanceof Duration d1 ? d1 : Duration.from(duration);
 
             client.callbacks().await(this.messageReference, codec, d.toMillis(), TimeUnit.MILLISECONDS, consumer);
@@ -71,7 +71,7 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
         }
 
         registerCallback = () -> {
-            replyChannel(ChannelIdentifier.absolute(client.callbacks().channel()));
+            replyChannel(ChannelIdentifier.identifier(client.callbacks().channel()));
             final Duration d = duration instanceof Duration d1 ? d1 : Duration.from(duration);
 
             client.callbacks().await(this.messageReference, this.codec, d.toMillis(), TimeUnit.MILLISECONDS, consumer);

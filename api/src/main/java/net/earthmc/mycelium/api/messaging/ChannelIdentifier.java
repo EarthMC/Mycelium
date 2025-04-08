@@ -6,8 +6,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChannelIdentifier {
-    public static final String REDIS_CHANNEL_PREFIX = "m:messaging:";
-
     private final String channel;
 
     private ChannelIdentifier(final String channel) {
@@ -15,10 +13,6 @@ public class ChannelIdentifier {
     }
 
     public static ChannelIdentifier identifier(final String channel) {
-        return new ChannelIdentifier(REDIS_CHANNEL_PREFIX + channel);
-    }
-
-    public static ChannelIdentifier absolute(final String channel) {
         return new ChannelIdentifier(channel);
     }
 
@@ -54,9 +48,16 @@ public class ChannelIdentifier {
          * Utility method to more easily register this channel.
          *
          * @param receiver A consumer for incoming messages on this channel.
-         *
-         * @see MessagingRegistrar#registerIncomingChannel(Bound, Consumer)
+         * @see MessagingRegistrar#registerPlatformChannel(Bound, Consumer)
          */
-        public abstract void registerChannel(Consumer<IncomingMessage<T>> receiver);
+        public abstract Listener registerPlatform(Consumer<IncomingMessage<T>> receiver);
+
+        /**
+         * Utility method to more easily register this channel.
+         *
+         * @param receiver A consumer for incoming messages on this channel.
+         * @see MessagingRegistrar#registerChannel(Bound, Consumer)
+         */
+        public abstract Listener register(Consumer<IncomingMessage<T>> receiver);
     }
 }

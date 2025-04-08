@@ -5,6 +5,7 @@ import io.lettuce.core.RedisURI;
 import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
+import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
@@ -53,6 +54,11 @@ public class MyceliumClient implements Mycelium, Closeable {
     @Override
     public MessagingRegistrar messaging() {
         return this.messagingRegistrar;
+    }
+
+    @Override
+    public Platform platform() {
+        return null;
     }
 
     public CallbackProvider callbacks() {
