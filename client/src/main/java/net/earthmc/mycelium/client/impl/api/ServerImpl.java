@@ -27,7 +27,7 @@ public class ServerImpl implements Server, PlayerListImpl {
 
     @Override
     public void runConsoleCommand(ConsoleCommand command) {
-
+        message(client.messaging().bind(ChannelIdentifier.identifier("console-command"), ConsoleCommand.CODEC), command).send();
     }
 
     @Override

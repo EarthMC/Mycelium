@@ -17,6 +17,10 @@ public class Command {
     private Command(final Target target, final String commandLine) {
         this.target = target;
         this.commandLine = (commandLine.startsWith("/") ? commandLine : "/" + commandLine).trim();
+
+        if (this.commandLine.isEmpty()) {
+            throw new IllegalArgumentException("command may not be empty.");
+        }
     }
 
     /**
