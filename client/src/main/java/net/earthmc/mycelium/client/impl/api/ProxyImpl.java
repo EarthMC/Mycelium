@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.client.impl.api;
 
 import net.earthmc.mycelium.api.network.Proxy;
+import net.earthmc.mycelium.api.proto.ConsoleCommand;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.RedisKey;
@@ -18,6 +19,11 @@ public class ProxyImpl implements Proxy, PlayerListImpl {
     @Override
     public String id() {
         return this.id;
+    }
+
+    @Override
+    public void runConsoleCommand(ConsoleCommand command) {
+
     }
 
     @Override

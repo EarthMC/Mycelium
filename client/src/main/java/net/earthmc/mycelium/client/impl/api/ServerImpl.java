@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.client.impl.api;
 
 import net.earthmc.mycelium.api.network.Server;
+import net.earthmc.mycelium.api.proto.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.RedisKey;
 
@@ -16,6 +17,11 @@ public class ServerImpl implements Server, PlayerListImpl {
     @Override
     public String name() {
         return this.name;
+    }
+
+    @Override
+    public void runConsoleCommand(ConsoleCommand command) {
+
     }
 
     @Override

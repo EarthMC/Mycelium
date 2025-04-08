@@ -6,6 +6,8 @@ import org.jspecify.annotations.NullMarked;
 /**
  * A class for holding information about a command.
  * @see Player#runCommand(Command)
+ *
+ * @implNote commandLine will always start with a slash.
  */
 @NullMarked
 public class Command {
@@ -53,7 +55,7 @@ public class Command {
     }
 
     /**
-     * The target (where it will be executed) for a command.
+     * The target for a command.
      */
     public enum Target {
         BACKEND, PROXY

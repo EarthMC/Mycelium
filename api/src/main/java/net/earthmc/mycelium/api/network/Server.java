@@ -1,5 +1,7 @@
 package net.earthmc.mycelium.api.network;
 
+import net.earthmc.mycelium.api.proto.ConsoleCommand;
+
 /**
  * Represents a backend server that players can connect to.
  */
@@ -8,4 +10,10 @@ public interface Server extends PlayerList {
      * @return The server name.
      */
     String name();
+
+    /**
+     * Runs a console command on this server.
+     * @param command The console command to run.
+     */
+    void runConsoleCommand(ConsoleCommand command);
 }
