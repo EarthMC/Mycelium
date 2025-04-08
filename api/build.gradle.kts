@@ -17,4 +17,13 @@ tasks {
     assemble {
         dependsOn(shadowJar)
     }
+
+    javadoc {
+        val options = options as StandardJavadocDocletOptions
+
+        options.use()
+        options.links(
+            "https://www.javadoc.io/doc/com.google.code.gson/gson/${libs.gson.get().version}/"
+        )
+    }
 }

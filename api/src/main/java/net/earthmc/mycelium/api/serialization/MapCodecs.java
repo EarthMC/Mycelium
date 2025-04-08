@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * A utility class for creating codecs for maps with different key & value codecs.
+ * A utility class for creating codecs for maps with different key &amp; value codecs.
  *
  * @see CollectionCodecs
  */
