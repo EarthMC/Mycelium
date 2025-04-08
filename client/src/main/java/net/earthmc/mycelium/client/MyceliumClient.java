@@ -3,6 +3,7 @@ package net.earthmc.mycelium.client;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import net.earthmc.mycelium.api.Mycelium;
+import net.earthmc.mycelium.api.MyceliumProvider;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.network.Platform;
@@ -82,16 +83,33 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     public static class Builder {
         private final Platform platform;
+
+        private boolean registerInstance = false;
         private String redisURI = "redis://localhost:6379/";
 
         private Builder(final Platform platform) {
             this.platform = platform;
         }
 
+        /**
+         * Enables the instance automatically being registered with the static provider upon creation.
+         * @return {@code this}
+         */
+        public Builder autoregister() {
+            this.registerInstance = true;
+            return this;
+        }
+
         // TODO: methods for connection pooling, clustering/sentinel
 
         public MyceliumClient build() {
-            return new MyceliumClient(this.redisURI, this.platform);
+            final MyceliumClient client = new MyceliumClient(this.redisURI, this.platform);
+
+            if (this.registerInstance) {
+                MyceliumProvider.register(client);
+            }
+
+            return client;
         }
     }
 }

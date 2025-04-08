@@ -25,8 +25,7 @@ public class MyceliumCLI {
     public static void main(String[] args) throws InterruptedException {
         final Logger logger = LoggerFactory.getLogger(MyceliumCLI.class);
 
-        MyceliumClient instance = MyceliumClient.newBuilder().build();
-        MyceliumProvider.register(instance);
+        MyceliumClient instance = MyceliumClient.standalone().autoregister().build();
 
         Thread t = new Thread(() -> {
             try {
