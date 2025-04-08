@@ -17,21 +17,23 @@ import java.util.UUID;
 
 public class MyceliumClient implements Mycelium, Closeable {
     private final Logger logger = LoggerFactory.getLogger(MyceliumClient.class);
-    private String networkId = "prod";
 
     private final RedisClient client;
 
     private final MessagingRegistrarImpl messagingRegistrar;
     private final CallbackProvider callbackProvider;
     private final NetworkImpl network;
+    private final Platform platform;
 
     private final String clientId = UUID.randomUUID().toString();
 
-    protected MyceliumClient(String redisURI) {
+    protected MyceliumClient(final String redisURI, final Platform platform) {
         this.client = RedisClient.create(RedisURI.create(redisURI));
+
         this.messagingRegistrar = new MessagingRegistrarImpl(this);
         this.callbackProvider = new CallbackProvider(this);
-        this.network = new NetworkImpl(networkId, this);
+        this.network = new NetworkImpl(platform.environment(), this);
+        this.platform = platform;
     }
 
     public RedisClient client() {
@@ -42,8 +44,12 @@ public class MyceliumClient implements Mycelium, Closeable {
         return this.clientId;
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
+    public static Builder standalone() {
+        return new Builder(new StandalonePlatform());
+    }
+
+    public static Builder forPlatform(final Platform platform) {
+        return new Builder(platform);
     }
 
     @Override
@@ -58,7 +64,7 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     @Override
     public Platform platform() {
-        return null;
+        return this.platform;
     }
 
     public CallbackProvider callbacks() {
@@ -70,11 +76,22 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.messagingRegistrar.shutdown();
     }
 
+    public Logger logger() {
+        return this.logger;
+    }
+
     public static class Builder {
+        private final Platform platform;
         private String redisURI = "redis://localhost:6379/";
 
+        private Builder(final Platform platform) {
+            this.platform = platform;
+        }
+
+        // TODO: methods for connection pooling, clustering/sentinel
+
         public MyceliumClient build() {
-            return new MyceliumClient(this.redisURI);
+            return new MyceliumClient(this.redisURI, this.platform);
         }
     }
 }

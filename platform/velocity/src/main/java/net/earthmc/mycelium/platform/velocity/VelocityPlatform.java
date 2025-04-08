@@ -9,14 +9,13 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.client.MyceliumClient;
-import org.jetbrains.annotations.NotNull;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
 public class VelocityPlatform extends Platform {
     @Inject
     private ProxyServer proxy;
 
-    private MyceliumClient client = MyceliumClient.newBuilder().build();
+    private MyceliumClient client = MyceliumClient.forPlatform(this).build();
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
@@ -25,16 +24,21 @@ public class VelocityPlatform extends Platform {
 
     @Subscribe
     public void onPlayerJoin(LoginEvent event) {
-        client.client().connect().sync().sadd(key("players"), event.getPlayer().getUniqueId().toString());
+
     }
 
     @Subscribe
     public void onPlayerQuit(DisconnectEvent event) {
-        client.client().connect().sync().srem(key("players"), event.getPlayer().getUniqueId().toString());
+
     }
 
     @Override
-    public @NotNull String platformIdentifier() {
-        return "proxies";
+    public String identifier() {
+        return "proxy";
+    }
+
+    @Override
+    public Type type() {
+        return Type.PROXY;
     }
 }
