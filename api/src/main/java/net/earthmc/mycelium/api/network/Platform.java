@@ -1,8 +1,10 @@
 package net.earthmc.mycelium.api.network;
 
 public abstract class Platform {
+    protected static final String UNKNOWN_ID = "unknown";
+
     private final String environment = System.getProperty("mycelium.environment", "prod");
-    private final String id = System.getProperty("mycelium.id", System.getProperty("name", "unknown"));
+    private final String id = System.getProperty("mycelium.id", System.getProperty("name", UNKNOWN_ID));
     private final String keyPrefix = "m:" + environment + ":" + identifier() + ":" + id + ":";
 
     public String key(String fieldName) {

@@ -5,25 +5,37 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import io.lettuce.core.api.StatefulRedisConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.api.proto.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.proto.PlayerCommandRequest;
+import net.earthmc.mycelium.client.redis.RedisKey;
+import org.slf4j.Logger;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
 public class VelocityPlatform extends Platform {
     @Inject
     private ProxyServer proxy;
 
+    @Inject
+    private Logger logger;
+
     private MyceliumClient client = MyceliumClient.forPlatform(this).build();
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        if (this.id().equals(UNKNOWN_ID)) {
+            logger.warn("No id has been set with the 'mycelium.id' or 'name' system properties!");
+            return;
+        }
+
         final MessagingRegistrar registrar = client.messaging();
 
         // TODO: debug logging
@@ -33,7 +45,6 @@ public class VelocityPlatform extends Platform {
                 return;
             }
 
-            // TODO: verify whether with or without / is needed.
             this.proxy.getCommandManager().executeAsync(this.proxy.getConsoleCommandSource(), payload.command());
         });
 
@@ -46,6 +57,17 @@ public class VelocityPlatform extends Platform {
 
             this.proxy.getCommandManager().executeAsync(player, payload.commandLine());
         });
+
+        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
+            connection.sync().sadd(RedisKey.create(client.network().id(), "proxies"), this.id());
+        }
+    }
+
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
+            connection.sync().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
+        }
     }
 
     @Subscribe

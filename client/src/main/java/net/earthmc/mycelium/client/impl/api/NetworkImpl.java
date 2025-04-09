@@ -36,7 +36,7 @@ public class NetworkImpl implements Network, PlayerListImpl {
 
     @Override
     public Collection<Proxy> proxies() {
-         return this.proxies.stream().map(id -> new ProxyImpl(id, this.client)).collect(Collectors.toUnmodifiableList());
+        return this.proxies.stream().map(id -> new ProxyImpl(id, this.client)).collect(Collectors.toUnmodifiableList());
     }
 
     @Override

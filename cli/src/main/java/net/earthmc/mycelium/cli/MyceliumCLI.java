@@ -1,25 +1,23 @@
 package net.earthmc.mycelium.cli;
 
 import net.earthmc.mycelium.api.Mycelium;
-import net.earthmc.mycelium.api.MyceliumProvider;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Proxy;
+import net.earthmc.mycelium.api.proto.ConsoleCommand;
 import net.earthmc.mycelium.api.serialization.Codecs;
 import net.earthmc.mycelium.api.serialization.CollectionCodecs;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.api.serialization.MapCodecs;
 import net.earthmc.mycelium.client.MyceliumClient;
-import net.earthmc.mycelium.client.impl.api.ProxyImpl;
-import net.earthmc.mycelium.client.redis.collection.RedisRemoteSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MyceliumCLI {
     public static void main(String[] args) throws InterruptedException {
@@ -35,23 +33,17 @@ public class MyceliumCLI {
         });
         t.start();
 
-        final Set<Proxy> proxies = new RedisRemoteSet<>(instance.client(), "proxies", ProxyImpl.CODEC);
-        logger.info(proxies.size() + "");
-        ((RedisRemoteSet<?>) proxies).close();
-
-        if (true) {
-            while (true) {
-                logger.info(proxies.size() + "");
-                Thread.sleep(1000L);
-            }
-        }
-
         final Mycelium api = Mycelium.get();
         final MessagingRegistrar registrar = api.messaging();
         final ChannelIdentifier.Bound<List<String>> identifier = registrar.bind(ChannelIdentifier.identifier("incoming"), CollectionCodecs.list(Codecs.STRING));
 
         final JsonCodec<Map<UUID, TestObject>> mapCodec = MapCodecs.map(JsonCodec.simple(UUID.class), JsonCodec.simple(TestObject.class));
         final ChannelIdentifier.Bound<Map<UUID, TestObject>> mapIdentifier = registrar.bind(ChannelIdentifier.identifier("incoming"), mapCodec);
+
+        final Proxy proxy = api.network().getProxyById("proxy1");
+        if (proxy != null) {
+            proxy.runConsoleCommand(ConsoleCommand.command("/alert all <rainbow>hello from mycelium"));
+        }
 
         final boolean sendMessage = args.length > 0;
         if (sendMessage) {
