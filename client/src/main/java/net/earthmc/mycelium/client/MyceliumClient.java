@@ -30,11 +30,11 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     protected MyceliumClient(final String redisURI, final Platform platform) {
         this.client = RedisClient.create(RedisURI.create(redisURI));
+        this.platform = platform;
 
+        this.network = new NetworkImpl(platform.environment(), this);
         this.messagingRegistrar = new MessagingRegistrarImpl(this);
         this.callbackProvider = new CallbackProvider(this);
-        this.network = new NetworkImpl(platform.environment(), this);
-        this.platform = platform;
     }
 
     public RedisClient client() {
