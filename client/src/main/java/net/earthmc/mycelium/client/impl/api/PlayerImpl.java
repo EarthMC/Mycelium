@@ -82,4 +82,14 @@ public class PlayerImpl implements Player {
         final PlayerCommandRequest request = new PlayerCommandRequest(this.uuid, command.command());
         target.message(client.messaging().bind(ChannelIdentifier.identifier("player-command"), PlayerCommandRequest.CODEC), request).send();
     }
+
+    @Override
+    public void sendRichMessage(String message) {
+
+    }
+
+    @Override
+    public void transferToServer(Server server) {
+
+    }
 }

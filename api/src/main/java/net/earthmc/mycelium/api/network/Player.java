@@ -43,4 +43,16 @@ public interface Player {
      * @param command The command to run, whether it's executed on the server or proxy is specified during creation.
      */
     void runCommand(Command command);
+
+    /**
+     * Sends the player a message, styled using minimessage.
+     * @param message The message to send.
+     */
+    void sendRichMessage(String message);
+
+    /**
+     * Attempts to connect the player to the specified server, if that server is part of the proxy the player is currently connected to.
+     * @param server The server to send the player to.
+     */
+    void transferToServer(Server server);
 }
