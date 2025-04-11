@@ -1,7 +1,8 @@
 package net.earthmc.mycelium.api.messaging;
 
-import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * An incoming message on a channel.
@@ -45,7 +46,7 @@ public interface IncomingMessage<T> {
      * @return A new response builder.
      * @throws IllegalArgumentException if the provided data could not be serialized.
      */
-    <N> OutgoingMessageBuilder<CallbackCompletable<Boolean>, N> buildResponse(N data);
+    <N> OutgoingMessageBuilder<CompletableFuture<Boolean>, N> buildResponse(N data);
 
     /**
      * Creates a new outgoing message builder that will asynchronously return whether this message was successfully delivered to any listeners.
@@ -55,5 +56,5 @@ public interface IncomingMessage<T> {
      * @return A new response builder.
      * @throws IllegalArgumentException if the provided data could not be serialized with the given codec.
      */
-    <N> OutgoingMessageBuilder<CallbackCompletable<Boolean>, N> buildResponse(JsonCodec<N> codec, N data);
+    <N> OutgoingMessageBuilder<CompletableFuture<Boolean>, N> buildResponse(JsonCodec<N> codec, N data);
 }

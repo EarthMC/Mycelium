@@ -1,8 +1,8 @@
 package net.earthmc.mycelium.api.messaging;
 
-import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -54,7 +54,7 @@ public interface MessagingRegistrar {
      * @return A new outgoing message builder.
      * @param <T> The type of the data being sent.
      */
-    <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data);
+    <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data);
 
     /**
      * Unregisters all listeners for the given channel.

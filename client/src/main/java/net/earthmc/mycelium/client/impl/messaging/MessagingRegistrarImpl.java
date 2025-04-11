@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
-import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -124,7 +124,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
     }
 
     @Override
-    public <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
+    public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
         return new OutgoingMessageBuilderImpl<>(this.client, newMessageReference(), makeGlobalKey(identifier.channel()), true, data, identifier.codec());
     }
 

@@ -10,7 +10,6 @@ repositories {
 dependencies {
     api(libs.jspecify)
     api(libs.jetbrains.annotations)
-    api(libs.concurrentutil)
     compileOnlyApi(libs.gson)
 }
 

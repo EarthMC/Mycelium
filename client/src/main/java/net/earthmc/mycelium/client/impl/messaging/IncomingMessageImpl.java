@@ -1,10 +1,11 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
-import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
+
+import java.util.concurrent.CompletableFuture;
 
 public class IncomingMessageImpl<T> implements IncomingMessage<T> {
     private final MyceliumClient client;
@@ -51,7 +52,7 @@ public class IncomingMessageImpl<T> implements IncomingMessage<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <N> OutgoingMessageBuilder<CallbackCompletable<Boolean>, N> buildResponse(N data) {
+    public <N> OutgoingMessageBuilder<CompletableFuture<Boolean>, N> buildResponse(N data) {
         checkCanRespond();
 
         final Class<N> newDataClass = (Class<N>) data.getClass();
@@ -64,7 +65,7 @@ public class IncomingMessageImpl<T> implements IncomingMessage<T> {
     }
 
     @Override
-    public <N> OutgoingMessageBuilder<CallbackCompletable<Boolean>, N> buildResponse(JsonCodec<N> codec, N data) {
+    public <N> OutgoingMessageBuilder<CompletableFuture<Boolean>, N> buildResponse(JsonCodec<N> codec, N data) {
         checkCanRespond();
         return new OutgoingMessageBuilderImpl<>(this.client, internalMessage.messageReference, internalMessage.replyTo, true, data, codec);
     }

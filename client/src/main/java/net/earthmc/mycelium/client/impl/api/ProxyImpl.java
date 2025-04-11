@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.client.impl.api;
 
-import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.api.network.Proxy;
@@ -11,6 +10,7 @@ import net.earthmc.mycelium.client.impl.messaging.OutgoingMessageBuilderImpl;
 import net.earthmc.mycelium.client.redis.RedisKey;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ProxyImpl implements Proxy, PlayerListImpl {
     public static final JsonCodec<Proxy> CODEC = JsonCodec.simple();
@@ -43,12 +43,12 @@ public class ProxyImpl implements Proxy, PlayerListImpl {
     }
 
     @Override
-    public <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(ChannelIdentifier identifier, T data) {
+    public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier identifier, T data) {
         return new OutgoingMessageBuilderImpl<>(this.client, UUID.randomUUID().toString(), RedisKey.create(this.client.network().id(), "proxy", this.id, "channels", identifier.channel()), true, data, null);
     }
 
     @Override
-    public <T> OutgoingMessageBuilder<CallbackCompletable<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
+    public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
         return new OutgoingMessageBuilderImpl<>(this.client, UUID.randomUUID().toString(), RedisKey.create(this.client.network().id(), "proxy", this.id, "channels", identifier.channel()), true, data, identifier.codec());
     }
 }
