@@ -25,7 +25,14 @@ tasks {
         options.links(
             "https://www.javadoc.io/doc/com.google.code.gson/gson/${libs.gson.get().version}/"
         )
+
+        options.tags("apiNote", "implNote")
     }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
