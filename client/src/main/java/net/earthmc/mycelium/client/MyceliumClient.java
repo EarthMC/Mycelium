@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.client;
 
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.MyceliumProvider;
@@ -10,6 +9,8 @@ import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
+import net.earthmc.mycelium.client.redis.api.RedisClient;
+import net.earthmc.mycelium.client.redis.impl.RedisClientWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     private final String clientId = UUID.randomUUID().toString();
 
     protected MyceliumClient(final String redisURI, final Platform platform) {
-        this.client = RedisClient.create(RedisURI.create(redisURI));
+        this.client = new RedisClientWrapper(io.lettuce.core.RedisClient.create(RedisURI.create(redisURI)));
         this.platform = platform;
 
         this.network = new NetworkImpl(platform.environment(), this);
