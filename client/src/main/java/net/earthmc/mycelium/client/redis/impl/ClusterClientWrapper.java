@@ -1,9 +1,10 @@
 package net.earthmc.mycelium.client.redis.impl;
 
+import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 import net.earthmc.mycelium.client.redis.api.RedisClient;
-import net.earthmc.mycelium.client.redis.api.RedisConnection;
 
 public class ClusterClientWrapper implements RedisClient {
     private final RedisClusterClient client;
@@ -13,12 +14,22 @@ public class ClusterClientWrapper implements RedisClient {
     }
 
     @Override
-    public RedisConnection<String, String> connect() {
-        return new RedisClusterConnectionWrapper<>(client.connect().sync());
+    public RedisCommands<String, String> connect() {
+        return client.connect().sync();
     }
 
     @Override
-    public <K, V> RedisConnection<K, V> connect(RedisCodec<K, V> codec) {
-        return new RedisConnectionWrapper<>();
+    public <K, V> RedisCommands<K, V> connect(RedisCodec<K, V> codec) {
+        return client.connect(codec).sync();
+    }
+
+    @Override
+    public RedisPubSubCommands<String, String> connectPubSub() {
+        return client.connectPubSub().sync();
+    }
+
+    @Override
+    public <K, V> RedisPubSubCommands<K, V> connectPubSub(RedisCodec<K, V> codec) {
+        return client.connectPubSub(codec).sync();
     }
 }
