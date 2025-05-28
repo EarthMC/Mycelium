@@ -1,7 +1,6 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
 import com.google.gson.JsonParseException;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
@@ -131,27 +130,10 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
     }
 
     private Boolean getSyncResult(InternalMessage message) {
-        try (StatefulRedisPubSubConnection<String, InternalMessage> connection = client.client().connectPubSub(InternalMessage.REDIS_CODEC)) {
-            return connection.sync().publish(destinationChannel, message) > 0;
-        }
+        return client.client().publish(destinationChannel, InternalMessage.REDIS_CODEC.serialize(message)) > 0;
     }
 
     private CompletableFuture<Boolean> createAsyncCallback(InternalMessage message) {
-        final CompletableFuture<Boolean> callback = new CompletableFuture<>();
-        StatefulRedisPubSubConnection<String, InternalMessage> connection = client.client().connectPubSub(InternalMessage.REDIS_CODEC);
-
-        try {
-            connection.async().publish(destinationChannel, message)
-                    .thenAccept(count -> callback.complete(count > 0))
-                    .exceptionally(exception -> {
-                        callback.completeExceptionally(exception);
-                        return null;
-                    });
-        } catch (Throwable thr) {
-            callback.completeExceptionally(thr);
-        }
-
-        callback.whenComplete((bool, ex) -> connection.closeAsync());
-        return callback;
+        return CompletableFuture.supplyAsync(() -> getSyncResult(message));
     }
 }

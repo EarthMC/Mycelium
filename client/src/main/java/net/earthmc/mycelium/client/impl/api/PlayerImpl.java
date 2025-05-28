@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.client.impl.api;
 
-import io.lettuce.core.api.StatefulRedisConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessageRecipient;
 import net.earthmc.mycelium.api.network.Player;
@@ -36,33 +35,27 @@ public class PlayerImpl implements Player {
 
     @Override
     public @Nullable Server server() {
-        try (final StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            final String serverId = connection.sync().hget("m:" + client.network().id() + ":player:" + this.uuid, "server");
-            if (serverId == null) {
-                return null;
-            }
-
-            return client.network().getServerById(serverId);
+        final String serverId = client.client().hget("m:" + client.network().id() + ":player:" + this.uuid, "server");
+        if (serverId == null) {
+            return null;
         }
+
+        return client.network().getServerById(serverId);
     }
 
     @Override
     public @Nullable Proxy proxy() {
-        try (final StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            final String proxyId = connection.sync().hget("m:" + client.network().id() + ":player:" + this.uuid, "proxy");
-            if (proxyId == null) {
-                return null;
-            }
-
-            return client.network().getProxyById(proxyId);
+        final String proxyId = client.client().hget("m:" + client.network().id() + ":player:" + this.uuid, "proxy");
+        if (proxyId == null) {
+            return null;
         }
+
+        return client.network().getProxyById(proxyId);
     }
 
     @Override
     public boolean isOnline() {
-        try (final StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            return connection.sync().sismember("m:" + client.network().id() + ":players", this.uuid.toString());
-        }
+        return client.client().sismember("m:" + client.network().id() + ":players", this.uuid.toString());
     }
 
     @Override

@@ -1,19 +1,19 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
 import com.google.gson.JsonParseException;
-import io.lettuce.core.pubsub.RedisPubSubAdapter;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.serialization.GsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPubSub;
 
 import java.io.Closeable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,45 +28,49 @@ public class CallbackProvider implements Closeable {
     private final Map<String, Callback<?>> callbacks = new ConcurrentHashMap<>();
     private final MyceliumClient client;
 
-    private final ScheduledExecutorService cleanupPool = Executors.newSingleThreadScheduledExecutor(runnable -> {
+    private final ScheduledExecutorService cleanupThread = Executors.newSingleThreadScheduledExecutor(runnable -> {
         final Thread thread = new Thread(runnable);
         thread.setName("Mycelium Callback Cleaner");
-
         return thread;
     });
 
-    private final StatefulRedisPubSubConnection<String, InternalMessage> connection;
+    private final ExecutorService pollThread = Executors.newSingleThreadExecutor(runnable -> {
+        final Thread thread = new Thread(runnable);
+        thread.setName("Mycelium Callback Polling");
+        return thread;
+    });
+
     private final String channel;
+    private final JedisPubSub listener;
 
     public CallbackProvider(MyceliumClient client) {
         this.client = client;
         this.channel = "m:" + client.network().id() + ":clients:" + client.clientId() + ":callback";
 
-        this.cleanupPool.scheduleAtFixedRate(this::cleanupExpiredCallbacks, 10L, 10L, TimeUnit.SECONDS);
+        this.cleanupThread.scheduleAtFixedRate(this::cleanupExpiredCallbacks, 10L, 10L, TimeUnit.SECONDS);
 
-        this.connection = client.client().connectPubSub(InternalMessage.REDIS_CODEC);
-
-        this.connection.addListener(new RedisPubSubAdapter<>() {
+        this.listener = new JedisPubSub() {
             @Override
-            public void message(String channel, InternalMessage message) {
-                if (message.source.equals(client.clientId())) {
+            public void onMessage(String channel, String message) {
+                final InternalMessage internalMessage = InternalMessage.REDIS_CODEC.deserialize(message);
+                if (internalMessage.source.equals(client.clientId())) {
                     return;
                 }
 
-                final Callback<?> callback = callbacks.remove(message.messageReference);
-                if (callback == null) {
+                final Callback<?> callback = callbacks.remove(internalMessage.messageReference);
+                if (callback == null || callback.expiration.isBefore(Instant.now())) {
                     return;
                 }
 
                 try {
-                    callback.handle(client, message);
+                    callback.handle(client, internalMessage);
                 } catch (Throwable throwable) {
-                    LOGGER.error("An exception occurred while handling callback with id {}", message.messageReference, throwable);
+                    LOGGER.error("An exception occurred while handling callback with id {}", internalMessage.messageReference, throwable);
                 }
             }
-        });
+        };
 
-        this.connection.async().subscribe(this.channel);
+        this.pollThread.submit(() -> this.client.client().psubscribe(this.listener, this.channel));
     }
 
     public <T> void await(String messageUUID, JsonCodec<T> codec, long expireTime, TimeUnit unit, Consumer<IncomingMessage<T>> callback) {
@@ -84,8 +88,10 @@ public class CallbackProvider implements Closeable {
 
     @Override
     public void close() {
-        this.cleanupPool.shutdown();
-        this.connection.close();
+        this.listener.unsubscribe();
+
+        this.cleanupThread.shutdown();
+        this.pollThread.shutdown();;
     }
 
     private void cleanupExpiredCallbacks() {

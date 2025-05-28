@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.client;
 
-import io.lettuce.core.RedisURI;
 import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.MyceliumProvider;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
@@ -9,10 +8,9 @@ import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
-import net.earthmc.mycelium.client.redis.api.RedisClient;
-import net.earthmc.mycelium.client.redis.impl.RedisClientWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.UnifiedJedis;
 
 import java.io.Closeable;
 import java.util.UUID;
@@ -20,7 +18,7 @@ import java.util.UUID;
 public class MyceliumClient implements Mycelium, Closeable {
     private final Logger logger = LoggerFactory.getLogger(MyceliumClient.class);
 
-    private final RedisClient client;
+    private final UnifiedJedis client;
 
     private final MessagingRegistrarImpl messagingRegistrar;
     private final CallbackProvider callbackProvider;
@@ -30,7 +28,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     private final String clientId = UUID.randomUUID().toString();
 
     protected MyceliumClient(final String redisURI, final Platform platform) {
-        this.client = new RedisClientWrapper(io.lettuce.core.RedisClient.create(RedisURI.create(redisURI)));
+        this.client = new UnifiedJedis(redisURI);
         this.platform = platform;
 
         this.network = new NetworkImpl(platform.environment(), this);
@@ -38,7 +36,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.callbackProvider = new CallbackProvider(this);
     }
 
-    public RedisClient client() {
+    public UnifiedJedis client() {
         return this.client;
     }
 

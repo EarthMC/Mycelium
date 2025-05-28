@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.client.impl.api;
 
-import io.lettuce.core.api.StatefulRedisConnection;
 import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
@@ -25,8 +24,8 @@ public class NetworkImpl implements Network, PlayerListImpl {
         this.id = id;
         this.client = client;
 
-        this.proxies = new RedisRemoteSet<>(client.client(), "m:" + id + ":proxies", Codecs.STRING);
-        this.servers = new RedisRemoteSet<>(client.client(), "m:" + id + ":servers", Codecs.STRING);
+        this.proxies = new RedisRemoteSet<>(client, "m:" + id + ":proxies", Codecs.STRING);
+        this.servers = new RedisRemoteSet<>(client, "m:" + id + ":servers", Codecs.STRING);
     }
 
     @Override
@@ -68,9 +67,7 @@ public class NetworkImpl implements Network, PlayerListImpl {
 
     @Override
     public int playerCount() {
-        try (final StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            return Math.toIntExact(connection.sync().scard(RedisKey.create(id, "players")));
-        }
+        return Math.toIntExact(client.client().scard(RedisKey.create(id, "players")));
     }
 
     @Override

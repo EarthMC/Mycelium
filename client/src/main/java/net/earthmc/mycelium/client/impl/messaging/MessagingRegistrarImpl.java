@@ -1,7 +1,5 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
-import io.lettuce.core.pubsub.RedisPubSubAdapter;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.Listener;
@@ -13,6 +11,7 @@ import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPubSub;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class MessagingRegistrarImpl implements MessagingRegistrar {
@@ -29,16 +30,22 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
     private final Map<String, List<RegisteredListener<?>>> listeners = new ConcurrentHashMap<>();
 
     private final MyceliumClient client;
-    private final StatefulRedisPubSubConnection<String, InternalMessage> connection;
+    private final JedisPubSub listener;
+
+    private final ExecutorService pollThread = Executors.newSingleThreadExecutor(runnable -> {
+        final Thread thread = new Thread(runnable);
+        thread.setName("Mycelium PubSub Polling");
+        return thread;
+    });
 
     public MessagingRegistrarImpl(MyceliumClient client) {
         this.client = client;
-        this.connection = client.client().connectPubSub(InternalMessage.REDIS_CODEC);
 
-        connection.addListener(new RedisPubSubAdapter<>() {
+        this.listener = new JedisPubSub() {
             @Override
-            public void message(String channel, InternalMessage message) {
-                if (message.source.equals(client.clientId())) {
+            public void onMessage(String channel, String message) {
+                final InternalMessage internalMessage = InternalMessage.REDIS_CODEC.deserialize(message);
+                if (internalMessage.source.equals(client.clientId())) {
                     return;
                 }
 
@@ -49,13 +56,15 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
 
                 for (final RegisteredListener<?> listener : registeredListeners) {
                     try {
-                        listener.processIncoming(client, message);
+                        listener.processIncoming(client, internalMessage);
                     } catch (Throwable throwable) {
                         logger.warn("Exception occurred while receiving message on channel {}, payload: {}", channel, throwable);
                     }
                 }
             }
-        });
+        };
+
+        this.pollThread.submit(() -> this.client.client().subscribe(this.listener));
     }
 
     @Override
@@ -68,10 +77,10 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
 
             if (listeners.remove(canonicalChannel) != null) {
                 removed = true;
-                this.connection.sync().unsubscribe(canonicalChannel);
+                this.listener.unsubscribe(canonicalChannel);
             } else if (listeners.remove(globalChannel) != null) {
                 removed = true;
-                this.connection.sync().unsubscribe(globalChannel);
+                this.listener.unsubscribe(globalChannel);
             }
         }
 
@@ -119,7 +128,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
             listeners.computeIfAbsent(fullChannel, k -> new ArrayList<>()).add(listener);
         }
 
-        this.connection.async().subscribe(fullChannel);
+        this.listener.subscribe(fullChannel);
         return listener;
     }
 
@@ -149,6 +158,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
     }
 
     public void shutdown() {
-        this.connection.close();
+        this.listener.unsubscribe();
+        this.pollThread.shutdown();
     }
 }
