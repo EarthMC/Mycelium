@@ -1,16 +1,14 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
-import io.lettuce.core.codec.RedisCodec;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import net.earthmc.mycelium.client.impl.serialization.RedisCodecs;
+import net.earthmc.mycelium.client.impl.serialization.RedisCodec;
 import org.jspecify.annotations.Nullable;
 
 /**
  * An internal message that is sent across the network.
  */
 public class InternalMessage {
-    public static final JsonCodec<InternalMessage> CODEC = JsonCodec.simple();
-    public static final RedisCodec<String, InternalMessage> REDIS_CODEC = RedisCodecs.codecFor(CODEC);
+    public static final RedisCodec<InternalMessage> REDIS_CODEC = RedisCodec.codecFor(JsonCodec.simple());
 
     public final String version = "1.0.0";
 

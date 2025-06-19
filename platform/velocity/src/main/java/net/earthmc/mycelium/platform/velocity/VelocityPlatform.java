@@ -10,7 +10,6 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import io.lettuce.core.api.StatefulRedisConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Platform;
@@ -64,16 +63,12 @@ public class VelocityPlatform extends Platform {
             this.proxy.getCommandManager().executeAsync(player, payload.commandLine());
         });
 
-        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            connection.sync().sadd(RedisKey.create(client.network().id(), "proxies"), this.id());
-        }
+        client.client().sadd(RedisKey.create(client.network().id(), "proxies"), this.id());
     }
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            connection.sync().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
-        }
+        this.client.client().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
     }
 
     @Subscribe
@@ -81,19 +76,16 @@ public class VelocityPlatform extends Platform {
         final UUID uuid = event.getUniqueId();
         final String username = event.getUsername().toLowerCase(Locale.ROOT);
 
-        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            boolean alreadyLoggedIn = false;
+        boolean alreadyLoggedIn = false;
 
-            if (uuid != null) {
-                alreadyLoggedIn = connection.sync().sismember(RedisKey.create(client.network().id(), "players"), uuid.toString());
-            } else {
-                alreadyLoggedIn = connection.sync().exists(RedisKey.create(client.network().id(), "name2uuid", username)) == 1;
-            }
+        if (uuid != null) {
+            alreadyLoggedIn = client.client().sismember(RedisKey.create(client.network().id(), "players"), uuid.toString());
+        } else {
+            alreadyLoggedIn = client.client().exists(RedisKey.create(client.network().id(), "name2uuid", username));
+        }
 
-            if (alreadyLoggedIn) {
-                event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("You are already connected to this network.", NamedTextColor.RED)));
-                return;
-            }
+        if (alreadyLoggedIn) {
+            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("You are already connected to this network.", NamedTextColor.RED)));
         }
     }
 
@@ -102,9 +94,7 @@ public class VelocityPlatform extends Platform {
         final String uuid = event.getPlayer().getUniqueId().toString();
         final String username = event.getPlayer().getUsername().toLowerCase(Locale.ROOT);
 
-        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            // todo: check if player doesn't exist to prevent any race conditions, then enter data
-        }
+        // todo: check if player doesn't exist to prevent any race conditions, then enter data
     }
 
     @Subscribe
@@ -112,15 +102,13 @@ public class VelocityPlatform extends Platform {
         final Player player = event.getPlayer();
 
         // TODO: Ensure that this is not ran when we deny a player from joining due to already being connected.
-        try (StatefulRedisConnection<String, String> connection = client.client().connect()) {
-            connection.sync().del(RedisKey.create(client.network().id(), "name2uuid", player.getUsername().toLowerCase(Locale.ROOT)));
+        client.client().del(RedisKey.create(client.network().id(), "name2uuid", player.getUsername().toLowerCase(Locale.ROOT)));
 
-            // TODO: nicer way to handle keys?
-            final String uuid = player.getUniqueId().toString();
-            connection.sync().srem(RedisKey.create(client.network().id(), "proxy", this.id(), "players"), uuid);
-            connection.sync().srem(RedisKey.create(client.network().id(), "players"), uuid);
-            connection.sync().del(RedisKey.create(client.network().id(), "player", uuid));
-        }
+        // TODO: nicer way to handle keys?
+        final String uuid = player.getUniqueId().toString();
+        client.client().srem(RedisKey.create(client.network().id(), "proxy", this.id(), "players"), uuid);
+        client.client().srem(RedisKey.create(client.network().id(), "players"), uuid);
+        client.client().del(RedisKey.create(client.network().id(), "player", uuid));
     }
 
     @Override

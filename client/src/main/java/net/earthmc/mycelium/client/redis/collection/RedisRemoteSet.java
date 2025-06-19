@@ -1,17 +1,15 @@
 package net.earthmc.mycelium.client.redis.collection;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.codec.RedisCodec;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import net.earthmc.mycelium.client.impl.serialization.RedisCodecs;
+import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.impl.serialization.RedisCodec;
 import org.jspecify.annotations.NullMarked;
 
 import java.io.Closeable;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A wrapper around a redis set that converts the remote data to a usable class using the supplied codec. The remote set will be (de)serialized on each access, guaranteeing that the returned data is up-to-date.
@@ -22,16 +20,14 @@ import java.util.Set;
 public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
     protected boolean closed;
     protected final String redisKey;
-    private final StatefulRedisPubSubConnection<String, T> connection;
-    protected final RedisCommands<String, T> commands;
+    private final MyceliumClient client;
+    private final RedisCodec<T> codec;
 
-    public RedisRemoteSet(RedisClient client, String redisKey, JsonCodec<T> codec) {
+    public RedisRemoteSet(MyceliumClient client, String redisKey, JsonCodec<T> codec) {
+        this.client = client;
         this.redisKey = redisKey;
 
-        final RedisCodec<String, T> redisCodec = RedisCodecs.codecFor(codec);
-        this.connection = client.connectPubSub(redisCodec);
-
-        this.commands = connection.sync();
+        this.codec = RedisCodec.codecFor(codec);
     }
 
     public Set<T> getRemote() {
@@ -39,17 +35,16 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return Set.of();
         }
 
-        return this.commands.smembers(this.redisKey);
+        return this.client.client().smembers(this.redisKey).stream().map(codec::deserialize).collect(Collectors.toSet());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean add(T element) {
         if (this.closed) {
             return false;
         }
 
-        return this.commands.sadd(this.redisKey, element) == 1;
+        return this.client.client().sadd(this.redisKey, this.codec.serialize(element)) == 1;
     }
 
     @Override
@@ -59,7 +54,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return false;
         }
 
-        return this.commands.srem(this.redisKey, (T) element) == 1;
+        return this.client.client().srem(this.redisKey, this.codec.serialize((T) element)) == 1;
     }
 
     @Override
@@ -69,7 +64,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return false;
         }
 
-        return this.commands.sismember(this.redisKey, (T) element);
+        return this.client.client().sismember(this.redisKey, this.codec.serialize((T) element));
     }
 
     @Override
@@ -85,6 +80,5 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
     @Override
     public void close() {
         this.closed = true;
-        this.connection.close();
     }
 }

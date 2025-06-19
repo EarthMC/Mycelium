@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(project(":api"))
-    api(libs.lettuce)
+    api(libs.jedis)
 
     implementation(libs.gson)
 

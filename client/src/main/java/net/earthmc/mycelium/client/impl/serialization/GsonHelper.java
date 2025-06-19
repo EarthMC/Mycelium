@@ -9,7 +9,7 @@ public class GsonHelper {
     public static final Gson DEFAULT_INSTANCE = newGsonBuilder().create();
 
     public static GsonBuilder newGsonBuilder() {
-        final GsonBuilder builder =  new GsonBuilder().serializeNulls();
+        final GsonBuilder builder = new GsonBuilder().serializeNulls();
 
         try {
             builder.setStrictness(Strictness.STRICT);
