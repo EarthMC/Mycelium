@@ -3,7 +3,7 @@ package net.earthmc.mycelium.client.impl.api;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.api.network.Proxy;
-import net.earthmc.mycelium.api.proto.ConsoleCommand;
+import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.messaging.OutgoingMessageBuilderImpl;

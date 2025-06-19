@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api.proto;
+package net.earthmc.mycelium.api.network.command;
 
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;

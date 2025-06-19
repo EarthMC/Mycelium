@@ -1,6 +1,6 @@
 package net.earthmc.mycelium.api.network;
 
-import net.earthmc.mycelium.api.proto.Command;
+import net.earthmc.mycelium.api.network.command.Command;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

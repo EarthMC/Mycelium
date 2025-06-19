@@ -4,7 +4,7 @@ import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Proxy;
-import net.earthmc.mycelium.api.proto.ConsoleCommand;
+import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.api.serialization.Codecs;
 import net.earthmc.mycelium.api.serialization.CollectionCodecs;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class MyceliumCLI {
     public static void main(String[] args) throws InterruptedException {

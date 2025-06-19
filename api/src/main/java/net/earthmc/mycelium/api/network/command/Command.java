@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api.proto;
+package net.earthmc.mycelium.api.network.command;
 
 import net.earthmc.mycelium.api.network.Player;
 import org.jspecify.annotations.NullMarked;

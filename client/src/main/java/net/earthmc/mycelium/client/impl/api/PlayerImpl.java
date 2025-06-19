@@ -6,7 +6,7 @@ import net.earthmc.mycelium.api.messaging.MessageRecipient;
 import net.earthmc.mycelium.api.network.Player;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
-import net.earthmc.mycelium.api.proto.Command;
+import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.proto.PlayerCommandRequest;
 import org.jspecify.annotations.Nullable;

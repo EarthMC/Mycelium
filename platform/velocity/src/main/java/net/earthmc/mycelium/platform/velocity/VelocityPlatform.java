@@ -14,7 +14,7 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Platform;
-import net.earthmc.mycelium.api.proto.ConsoleCommand;
+import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.proto.PlayerCommandRequest;
 import net.earthmc.mycelium.client.redis.RedisKey;
