@@ -19,7 +19,7 @@ public interface OutgoingMessageBuilder<R, T> {
      */
     OutgoingMessageBuilder<R, T> replyChannel(@Nullable ChannelIdentifier identifier);
 
-    // TODO: ability to run code when the timeout is passed.
+    // TODO: callback builders
     /**
      * Attaches a callback to this reply. Callbacks are single-use and have a maximum lifetime.
      *

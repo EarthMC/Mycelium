@@ -1,0 +1,7 @@
+name: Mycelium
+main: net.earthmc.mycelium.platform.paper.PaperLoader
+version: ${version}
+author: Warriorrr
+api-version: '1.21'
+load: STARTUP
+folia-supported: true

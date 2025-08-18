@@ -74,7 +74,11 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
 
     @Override
     public int size() {
-        return this.getRemote().size();
+        if (this.closed) {
+            return 0;
+        }
+
+        return this.client.client().smembers(this.redisKey).size();
     }
 
     @Override

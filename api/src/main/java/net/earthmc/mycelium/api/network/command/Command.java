@@ -44,15 +44,14 @@ public class Command {
     }
 
     /**
-     * @return The target.
-     * @see Target
+     * {@return Where this command will be executed, backend or proxy}
      */
     public Target target() {
         return this.target;
     }
 
     /**
-     * @return The command, always preceded by a forward slash.
+     * {@return The command, always preceded by a forward slash}
      */
     public String command() {
         return this.commandLine;

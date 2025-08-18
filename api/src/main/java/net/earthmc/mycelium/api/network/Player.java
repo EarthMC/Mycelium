@@ -40,7 +40,7 @@ public interface Player {
 
     /**
      * Runs a command for the player.
-     * @param command The command to run, whether it's executed on the server or proxy is specified during creation.
+     * @param command The command to run, whether it's executed on the server or proxy depends on the {@link Command#target()}.
      */
     void runCommand(Command command);
 

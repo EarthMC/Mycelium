@@ -1,11 +1,13 @@
 package net.earthmc.mycelium.api.network;
 
+import java.util.Locale;
+
 public abstract class Platform {
     protected static final String UNKNOWN_ID = "unknown";
 
     private final String environment = System.getProperty("mycelium.environment", "prod");
     private final String id = System.getProperty("mycelium.id", System.getProperty("name", UNKNOWN_ID));
-    private final String keyPrefix = "m:" + environment + ":" + identifier() + ":" + id + ":";
+    private final String keyPrefix = "m:" + environment + ":" + platformIdentifier() + ":" + id + ":";
 
     public String key(String fieldName) {
         return keyPrefix + fieldName;
@@ -22,7 +24,9 @@ public abstract class Platform {
     /**
      * @return The identifier for this platform, for use in keys in the KV store.
      */
-    public abstract String identifier();
+    public String platformIdentifier() {
+        return type().name().toLowerCase(Locale.ROOT);
+    }
 
     /**
      *

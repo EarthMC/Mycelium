@@ -6,8 +6,7 @@ import net.earthmc.mycelium.api.network.Platform;
 
 public interface Mycelium {
     /**
-     * Static getter for the mycelium api.
-     * @return The mycelium api instance.
+     * {@return The mycelium api instance}
      */
     static Mycelium get() {
         return MyceliumProvider.get();
@@ -18,7 +17,7 @@ public interface Mycelium {
     MessagingRegistrar messaging();
 
     /**
-     * @return The current platform's instance.
+     * {@return The current platform's instance}
      */
     Platform platform();
 }
