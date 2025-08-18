@@ -7,9 +7,12 @@ import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.client.MyceliumClient;
-import net.earthmc.mycelium.client.impl.proto.PlayerCommandRequest;
+import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
+import net.earthmc.mycelium.client.impl.model.SendMessage;
+import net.earthmc.mycelium.client.impl.model.TransferToServer;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerImpl implements Player {
@@ -78,11 +81,19 @@ public class PlayerImpl implements Player {
 
     @Override
     public void sendRichMessage(String message) {
+        final MessageRecipient recipient = Optional.ofNullable((MessageRecipient) proxy()).orElseGet(this::server);
 
+        if (recipient != null) {
+            recipient.message(client.messaging().bind(ChannelIdentifier.identifier("send-message"), SendMessage.CODEC), new SendMessage(this.uuid, message)).send();
+        }
     }
 
     @Override
     public void transferToServer(Server server) {
+        final Proxy proxy = proxy();
 
+        if (proxy != null) {
+            proxy.message(client.messaging().bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), new TransferToServer(this.uuid, server.name())).send();
+        }
     }
 }

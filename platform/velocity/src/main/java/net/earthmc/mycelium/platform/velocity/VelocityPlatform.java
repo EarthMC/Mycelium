@@ -10,12 +10,15 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
-import net.earthmc.mycelium.client.impl.proto.PlayerCommandRequest;
+import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
+import net.earthmc.mycelium.client.impl.model.SendMessage;
+import net.earthmc.mycelium.client.impl.model.TransferToServer;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -61,6 +64,17 @@ public class VelocityPlatform extends Platform {
             }
 
             this.proxy.getCommandManager().executeAsync(player, payload.commandLine());
+        });
+
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-message"), SendMessage.CODEC), incoming -> this.proxy.getPlayer(incoming.data().playerUUID()).ifPresent(player -> player.sendRichMessage(incoming.data().message())));
+
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), incoming -> {
+            final Player player = this.proxy.getPlayer(incoming.data().playerUUID()).orElse(null);
+            final RegisteredServer target = this.proxy.getServer(incoming.data().serverName()).orElse(null);
+
+            if (player != null && target != null) {
+                player.createConnectionRequest(target).fireAndForget();
+            }
         });
 
         client.client().sadd(RedisKey.create(client.network().id(), "proxies"), this.id());
