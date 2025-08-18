@@ -1,11 +1,10 @@
 plugins {
     java
-    id("com.gradleup.shadow") version "9.0.0-beta12"
+    id("com.gradleup.shadow") version "9.0.2" apply false
 }
 
 allprojects {
     apply(plugin = "java")
-    apply(plugin = "com.gradleup.shadow")
 
     repositories {
         mavenCentral()
@@ -20,10 +19,6 @@ allprojects {
 
         processResources {
             filteringCharset = Charsets.UTF_8.name()
-        }
-
-        shadowJar {
-            archiveClassifier.set("")
         }
     }
 }

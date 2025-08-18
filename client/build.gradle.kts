@@ -6,17 +6,8 @@ dependencies {
     api(project(":api"))
     api(libs.jedis)
 
-    implementation(libs.gson)
-
+    compileOnly(libs.jspecify)
+    compileOnly(libs.jetbrains.annotations)
+    compileOnly(libs.gson)
     compileOnly(libs.slf4j.api)
-}
-
-tasks {
-    assemble {
-        dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        dependsOn(project(":api").tasks.shadowJar)
-    }
 }

@@ -8,16 +8,12 @@ repositories {
 }
 
 dependencies {
-    api(libs.jspecify)
-    api(libs.jetbrains.annotations)
-    compileOnlyApi(libs.gson)
+    compileOnly(libs.jspecify)
+    compileOnly(libs.jetbrains.annotations)
+    compileOnly(libs.gson)
 }
 
 tasks {
-    assemble {
-        dependsOn(shadowJar)
-    }
-
     javadoc {
         val options = options as StandardJavadocDocletOptions
 
