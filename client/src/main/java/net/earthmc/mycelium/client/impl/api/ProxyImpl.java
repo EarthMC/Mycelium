@@ -9,6 +9,7 @@ import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.messaging.OutgoingMessageBuilderImpl;
 import net.earthmc.mycelium.client.redis.RedisKey;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,5 +51,16 @@ public class ProxyImpl implements Proxy, PlayerListImpl {
     @Override
     public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
         return new OutgoingMessageBuilderImpl<>(this.client, UUID.randomUUID().toString(), RedisKey.create(this.client.network().id(), "proxy", this.id, "channels", identifier.channel()), true, data, identifier.codec());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ProxyImpl proxy)) return false;
+        return Objects.equals(id, proxy.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

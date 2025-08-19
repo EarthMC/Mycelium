@@ -7,7 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PaperLoader extends JavaPlugin {
     private final PaperPlatform platform = new PaperPlatform(this);
-    private final MyceliumClient client = MyceliumClient.forPlatform(this.platform).autoregister().nativeServer(() -> new NativeServer(platform.id(), (MyceliumClient) Mycelium.get(), this)).build();
+    private final MyceliumClient client = MyceliumClient.forPlatform(this.platform).autoregister().nativeServer(client -> new NativeServer(platform.id(), client, this)).build();
 
     @Override
     public void onEnable() {
@@ -18,6 +18,7 @@ public class PaperLoader extends JavaPlugin {
     @Override
     public void onDisable() {
         this.platform.disable();
+        this.client.close();
     }
 
     public MyceliumClient client() {

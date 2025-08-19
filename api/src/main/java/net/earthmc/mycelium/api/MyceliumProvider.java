@@ -18,7 +18,7 @@ public class MyceliumProvider {
     @ApiStatus.Internal
     public static void register(Mycelium instance) {
         if (INSTANCE != null) {
-            throw new IllegalStateException("Cannot register mycelium api provider when a provider is already set.");
+            throw new IllegalStateException("Cannot register mycelium API provider, instance is already set.");
         }
 
         INSTANCE = instance;
@@ -30,7 +30,7 @@ public class MyceliumProvider {
      */
     public static Mycelium get() {
         if (INSTANCE == null) {
-            throw new IllegalStateException("Mycelium api provider has not been registered yet!");
+            throw new IllegalStateException("Mycelium API provider has not been registered yet!");
         }
 
         return INSTANCE;

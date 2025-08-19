@@ -85,4 +85,9 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
     public void close() {
         this.closed = true;
     }
+
+    @Override
+    public String toString() {
+        return this.getRemote().toString();
+    }
 }

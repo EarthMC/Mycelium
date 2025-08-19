@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Objects;
 
 @NullMarked
 public class NetworkImpl implements Network, PlayerListImpl {
@@ -21,18 +22,15 @@ public class NetworkImpl implements Network, PlayerListImpl {
     private final RedisRemoteSet<String> proxies;
     private final RedisRemoteSet<String> servers;
 
-    private final @Nullable Server nativeServer;
-    private final @Nullable Proxy nativeProxy;
+    private @Nullable Server nativeServer;
+    private @Nullable Proxy nativeProxy;
 
-    public NetworkImpl(final String id, final MyceliumClient client, @Nullable Server nativeServer, @Nullable Proxy nativeProxy) {
+    public NetworkImpl(final String id, final MyceliumClient client) {
         this.id = id;
         this.client = client;
 
         this.proxies = new RedisRemoteSet<>(client, "m:" + id + ":proxies", Codecs.STRING);
         this.servers = new RedisRemoteSet<>(client, "m:" + id + ":servers", Codecs.STRING);
-
-        this.nativeServer = nativeServer;
-        this.nativeProxy = nativeProxy;
     }
 
     @Override
@@ -73,11 +71,6 @@ public class NetworkImpl implements Network, PlayerListImpl {
     }
 
     @Override
-    public int playerCount() {
-        return Math.toIntExact(client.client().scard(RedisKey.create(id, "players")));
-    }
-
-    @Override
     public String playerSetKey() {
         return RedisKey.create(id, "players");
     }
@@ -101,5 +94,24 @@ public class NetworkImpl implements Network, PlayerListImpl {
         }
 
         return new ProxyImpl(name, client);
+    }
+
+    public void setNativeServer(final @Nullable Server nativeServer) {
+        this.nativeServer = nativeServer;
+    }
+
+    public void setNativeProxy(final @Nullable Proxy nativeProxy) {
+        this.nativeProxy = nativeProxy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof NetworkImpl network)) return false;
+        return Objects.equals(id, network.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

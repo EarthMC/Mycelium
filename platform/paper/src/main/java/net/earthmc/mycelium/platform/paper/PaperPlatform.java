@@ -30,8 +30,7 @@ public class PaperPlatform extends Platform implements Listener {
 
     public void enable() {
         if (this.id().equals(UNKNOWN_ID)) {
-            logger.error("No id has been set with the 'mycelium.id' or 'name' system properties!");
-            return;
+            throw new IllegalStateException("No id has been set with the 'mycelium.id' or 'name' system properties!");
         }
 
         final MessagingRegistrar registrar = client().messaging();
@@ -92,7 +91,7 @@ public class PaperPlatform extends Platform implements Listener {
     }
 
     public UnifiedJedis redis() {
-        return redis();
+        return client().client();
     }
 
     @Override

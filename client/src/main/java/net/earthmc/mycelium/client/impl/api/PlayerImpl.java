@@ -12,6 +12,7 @@ import net.earthmc.mycelium.client.impl.model.SendMessage;
 import net.earthmc.mycelium.client.impl.model.TransferToServer;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -95,5 +96,16 @@ public class PlayerImpl implements Player {
         if (proxy != null) {
             proxy.message(client.messaging().bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), new TransferToServer(this.uuid, server.name())).send();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof PlayerImpl player)) return false;
+        return Objects.equals(username, player.username) && Objects.equals(uuid, player.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, uuid);
     }
 }

@@ -10,20 +10,20 @@ import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.io.Closeable;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class MyceliumClient implements Mycelium, Closeable {
     private final Logger logger = LoggerFactory.getLogger(MyceliumClient.class);
 
-    private final UnifiedJedis client;
+    private final UnifiedJedis redisClient;
 
     private final MessagingRegistrarImpl messagingRegistrar;
     private final CallbackProvider callbackProvider;
@@ -32,17 +32,17 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     private final String clientId = UUID.randomUUID().toString();
 
-    protected MyceliumClient(final String redisURI, final Platform platform, Supplier<@Nullable Server> nativeServer, Supplier<@Nullable Proxy> nativeProxy) {
-        this.client = new UnifiedJedis(redisURI);
+    protected MyceliumClient(final String redisURI, final Platform platform) {
+        this.redisClient = new JedisPooled(redisURI);
         this.platform = platform;
 
-        this.network = new NetworkImpl(platform.environment(), this, nativeServer.get(), nativeProxy.get());
+        this.network = new NetworkImpl(platform.environment(), this);
         this.messagingRegistrar = new MessagingRegistrarImpl(this);
         this.callbackProvider = new CallbackProvider(this);
     }
 
     public UnifiedJedis client() {
-        return this.client;
+        return this.redisClient;
     }
 
     public String clientId() {
@@ -80,6 +80,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     public void close() {
         this.messagingRegistrar.shutdown();
         this.callbackProvider.close();
+        this.redisClient.close();
     }
 
     public Logger logger() {
@@ -91,8 +92,8 @@ public class MyceliumClient implements Mycelium, Closeable {
 
         private boolean registerInstance = false;
         private String redisURI = "redis://localhost:6379/";
-        private Supplier<Server> nativeServer = () -> null;
-        private Supplier<Proxy> nativeProxy = () -> null;
+        private Function<MyceliumClient, Server> nativeServer = client -> null;
+        private Function<MyceliumClient, Proxy> nativeProxy = client -> null;
 
         private Builder(final Platform platform) {
             this.platform = platform;
@@ -107,13 +108,13 @@ public class MyceliumClient implements Mycelium, Closeable {
             return this;
         }
 
-        public Builder nativeServer(final Supplier<Server> nativeServer) {
+        public Builder nativeServer(final Function<MyceliumClient, Server> nativeServer) {
             Objects.requireNonNull(nativeServer, "supplier may not be null");
             this.nativeServer = nativeServer;
             return this;
         }
 
-        public Builder nativeProxy(final Supplier<Proxy> nativeProxy) {
+        public Builder nativeProxy(final Function<MyceliumClient, Proxy> nativeProxy) {
             Objects.requireNonNull(nativeProxy, "supplier may not be null");
             this.nativeProxy = nativeProxy;
             return this;
@@ -122,11 +123,14 @@ public class MyceliumClient implements Mycelium, Closeable {
         // TODO: methods for connection pooling, clustering/sentinel
 
         public MyceliumClient build() {
-            final MyceliumClient client = new MyceliumClient(this.redisURI, this.platform, this.nativeServer, this.nativeProxy);
+            final MyceliumClient client = new MyceliumClient(this.redisURI, this.platform);
 
             if (this.registerInstance) {
                 MyceliumProvider.register(client);
             }
+
+            client.network.setNativeProxy(this.nativeProxy.apply(client));
+            client.network.setNativeServer(this.nativeServer.apply(client));
 
             return client;
         }

@@ -13,7 +13,7 @@ public class GsonHelper {
 
         try {
             builder.setStrictness(Strictness.STRICT);
-        } catch (NoSuchMethodError ignored) {}
+        } catch (NoSuchMethodError | NoClassDefFoundError ignored) {}
 
         return builder;
     }
