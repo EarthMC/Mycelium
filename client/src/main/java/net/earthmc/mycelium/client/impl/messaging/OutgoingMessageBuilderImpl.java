@@ -130,7 +130,7 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
     }
 
     private Boolean getSyncResult(InternalMessage message) {
-        return client.client().publish(destinationChannel, InternalMessage.REDIS_CODEC.serialize(message)) > 0;
+        return client.redis().publish(destinationChannel, InternalMessage.REDIS_CODEC.serialize(message)) > 0;
     }
 
     private CompletableFuture<Boolean> createAsyncCallback(InternalMessage message) {

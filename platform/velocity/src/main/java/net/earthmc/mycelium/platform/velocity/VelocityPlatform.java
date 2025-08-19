@@ -13,7 +13,6 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import com.velocitypowered.api.proxy.server.ServerPing;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Platform;
@@ -83,14 +82,14 @@ public class VelocityPlatform extends Platform {
             }
         });
 
-        client.client().sadd(RedisKey.create(client, "proxies"), this.id());
+        client.redis().sadd(RedisKey.create(client, "proxies"), this.id());
 
         // TODO: cleanup prior data
     }
 
     @Subscribe(priority = Short.MIN_VALUE / 2)
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        this.client.client().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
+        this.client.redis().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
 
         // Clean up after ourselves
         for (final Player player : this.proxy.getAllPlayers()) {
@@ -108,7 +107,7 @@ public class VelocityPlatform extends Platform {
         boolean alreadyLoggedIn = false;
 
         if (uuid == null) {
-            final String uuidString = client.client().get(RedisKey.create(client, "name2uuid", username));
+            final String uuidString = client.redis().get(RedisKey.create(client, "name2uuid", username));
 
             if (uuidString != null) {
                 uuid = UUID.fromString(uuidString);
@@ -119,14 +118,14 @@ public class VelocityPlatform extends Platform {
         if (uuid != null) {
             final String uuidString = uuid.toString();
 
-            final String proxyId = client.client().hget(RedisKey.create(client, "player", uuidString), "proxy");
+            final String proxyId = client.redis().hget(RedisKey.create(client, "player", uuidString), "proxy");
             if (this.id().equals(proxyId) && proxy.getPlayer(uuid).isEmpty()) {
                 // player is considered to still be on this proxy so something went wrong, clean up data
                 cleanupPlayer(username, uuidString);
                 return;
             }
 
-            alreadyLoggedIn = client.client().sismember(RedisKey.create(client, "players"), uuidString);
+            alreadyLoggedIn = client.redis().sismember(RedisKey.create(client, "players"), uuidString);
         }
 
         if (alreadyLoggedIn) {
@@ -142,13 +141,13 @@ public class VelocityPlatform extends Platform {
 
         // todo: check if player doesn't exist to prevent any race conditions
 
-        client.client().set(RedisKey.create(client, "name2uuid", player.getUsername().toLowerCase(Locale.ROOT)), uuid);
-        client.client().sadd(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
-        client.client().sadd(RedisKey.create(client, "players"), uuid);
+        client.redis().set(RedisKey.create(client, "name2uuid", player.getUsername().toLowerCase(Locale.ROOT)), uuid);
+        client.redis().sadd(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
+        client.redis().sadd(RedisKey.create(client, "players"), uuid);
 
         final String playerHashKey = RedisKey.create(client, "player", uuid);
-        client.client().hset(playerHashKey, "name", player.getUsername());
-        client.client().hset(playerHashKey, "proxy", this.id());
+        client.redis().hset(playerHashKey, "name", player.getUsername());
+        client.redis().hset(playerHashKey, "proxy", this.id());
     }
 
     @Subscribe
@@ -156,11 +155,11 @@ public class VelocityPlatform extends Platform {
         final String serverName = event.getServer().getServerInfo().getName().toLowerCase(Locale.ROOT);
         final String uuid = event.getPlayer().getUniqueId().toString();
 
-        client.client().hset(RedisKey.create(client, "player", uuid), "server", serverName);
-        client.client().sadd(RedisKey.create(client, "server", serverName, "players"), uuid);
+        client.redis().hset(RedisKey.create(client, "player", uuid), "server", serverName);
+        client.redis().sadd(RedisKey.create(client, "server", serverName, "players"), uuid);
 
         event.getPreviousServer().ifPresent(previous -> {
-            client.client().srem(RedisKey.create(client, "server", previous.getServerInfo().getName().toLowerCase(Locale.ROOT), "players"), uuid);
+            client.redis().srem(RedisKey.create(client, "server", previous.getServerInfo().getName().toLowerCase(Locale.ROOT), "players"), uuid);
         });
     }
 
@@ -180,15 +179,15 @@ public class VelocityPlatform extends Platform {
 
     private void cleanupPlayer(final String username, final String uuid) {
         // TODO: Ensure that this is not ran when we deny a player from joining due to already being connected.
-        client.client().del(RedisKey.create(client, "name2uuid", username.toLowerCase(Locale.ROOT)));
+        client.redis().del(RedisKey.create(client, "name2uuid", username.toLowerCase(Locale.ROOT)));
 
-        client.client().srem(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
-        client.client().srem(RedisKey.create(client, "players"), uuid);
-        client.client().del(RedisKey.create(client, "player", uuid));
+        client.redis().srem(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
+        client.redis().srem(RedisKey.create(client, "players"), uuid);
+        client.redis().del(RedisKey.create(client, "player", uuid));
 
         for (final Server server : client.network().servers()) {
             // remove uuid from the player list of each server
-            client.client().srem(RedisKey.create(client, "server", server.name(), "players"), uuid);
+            client.redis().srem(RedisKey.create(client, "server", server.name(), "players"), uuid);
         }
     }
 

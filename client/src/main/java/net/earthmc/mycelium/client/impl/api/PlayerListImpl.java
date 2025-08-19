@@ -22,10 +22,10 @@ public interface PlayerListImpl extends PlayerList {
     default @NonNull Collection<Player> players() {
         final Set<Player> players = new HashSet<>();
 
-        final Set<String> onlineUUIDs = client().client().smembers(playerSetKey());
+        final Set<String> onlineUUIDs = client().redis().smembers(playerSetKey());
 
         for (final String uuid : onlineUUIDs) {
-            final String username = client().client().hget(RedisKey.create(client().network().id(), "player", uuid), "name");
+            final String username = client().redis().hget(RedisKey.create(client().network().id(), "player", uuid), "name");
 
             if (username == null) {
                 continue;
@@ -39,22 +39,22 @@ public interface PlayerListImpl extends PlayerList {
 
     @Override
     default int playerCount() {
-        return Math.toIntExact(client().client().scard(playerSetKey()));
+        return Math.toIntExact(client().redis().scard(playerSetKey()));
     }
 
     @Override
     default @Nullable Player getPlayerByName(String name) {
-        final String uuid = client().client().get(RedisKey.create(client().network().id(), "name2uuid", name.toLowerCase(Locale.ROOT)));
+        final String uuid = client().redis().get(RedisKey.create(client().network().id(), "name2uuid", name.toLowerCase(Locale.ROOT)));
         if (uuid == null) {
             return null;
         }
 
-        if (!client().client().sismember(playerSetKey(), uuid)) {
+        if (!client().redis().sismember(playerSetKey(), uuid)) {
             return null;
         }
 
         // Lookup exact name
-        final String accurateName = client().client().hget(RedisKey.create(client().network().id(), "player", uuid), "name");
+        final String accurateName = client().redis().hget(RedisKey.create(client().network().id(), "player", uuid), "name");
         if (accurateName == null) {
             return null;
         }
@@ -65,11 +65,11 @@ public interface PlayerListImpl extends PlayerList {
     @Override
     default @Nullable Player getPlayerByUUID(UUID uuid) {
         // Not online on this network/server/proxy
-        if (!client().client().sismember(playerSetKey(), uuid.toString())) {
+        if (!client().redis().sismember(playerSetKey(), uuid.toString())) {
             return null;
         }
 
-        final String name = client().client().hget(RedisKey.create(client().network().id(), "player", uuid.toString()), "name");
+        final String name = client().redis().hget(RedisKey.create(client().network().id(), "player", uuid.toString()), "name");
         if (name == null) {
             return null;
         }

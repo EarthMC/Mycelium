@@ -91,7 +91,7 @@ public class PaperPlatform extends Platform implements Listener {
     }
 
     public UnifiedJedis redis() {
-        return client().client();
+        return client().redis();
     }
 
     @Override

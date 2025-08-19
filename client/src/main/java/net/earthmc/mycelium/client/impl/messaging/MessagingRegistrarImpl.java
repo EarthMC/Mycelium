@@ -64,7 +64,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
             }
         };
 
-        this.pollThread.submit(() -> this.client.client().psubscribe(this.listener, "m:*"));
+        this.pollThread.submit(() -> this.client.redis().psubscribe(this.listener, "m:*"));
     }
 
     @Override

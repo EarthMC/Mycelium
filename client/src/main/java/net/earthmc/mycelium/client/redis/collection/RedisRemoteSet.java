@@ -35,7 +35,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return Set.of();
         }
 
-        return this.client.client().smembers(this.redisKey).stream().map(codec::deserialize).collect(Collectors.toSet());
+        return this.client.redis().smembers(this.redisKey).stream().map(codec::deserialize).collect(Collectors.toSet());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return false;
         }
 
-        return this.client.client().sadd(this.redisKey, this.codec.serialize(element)) == 1;
+        return this.client.redis().sadd(this.redisKey, this.codec.serialize(element)) == 1;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return false;
         }
 
-        return this.client.client().srem(this.redisKey, this.codec.serialize((T) element)) == 1;
+        return this.client.redis().srem(this.redisKey, this.codec.serialize((T) element)) == 1;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return false;
         }
 
-        return this.client.client().sismember(this.redisKey, this.codec.serialize((T) element));
+        return this.client.redis().sismember(this.redisKey, this.codec.serialize((T) element));
     }
 
     @Override
@@ -78,7 +78,7 @@ public class RedisRemoteSet<T> extends AbstractSet<T> implements Closeable {
             return 0;
         }
 
-        return this.client.client().smembers(this.redisKey).size();
+        return this.client.redis().smembers(this.redisKey).size();
     }
 
     @Override

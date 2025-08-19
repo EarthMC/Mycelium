@@ -41,7 +41,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.callbackProvider = new CallbackProvider(this);
     }
 
-    public UnifiedJedis client() {
+    public UnifiedJedis redis() {
         return this.redisClient;
     }
 

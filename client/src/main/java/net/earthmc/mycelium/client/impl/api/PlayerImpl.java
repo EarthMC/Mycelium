@@ -39,7 +39,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public @Nullable Server server() {
-        final String serverId = client.client().hget("m:" + client.network().id() + ":player:" + this.uuid, "server");
+        final String serverId = client.redis().hget("m:" + client.network().id() + ":player:" + this.uuid, "server");
         if (serverId == null) {
             return null;
         }
@@ -49,7 +49,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public @Nullable Proxy proxy() {
-        final String proxyId = client.client().hget("m:" + client.network().id() + ":player:" + this.uuid, "proxy");
+        final String proxyId = client.redis().hget("m:" + client.network().id() + ":player:" + this.uuid, "proxy");
         if (proxyId == null) {
             return null;
         }
@@ -59,7 +59,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public boolean isOnline() {
-        return client.client().sismember("m:" + client.network().id() + ":players", this.uuid.toString());
+        return client.redis().sismember("m:" + client.network().id() + ":players", this.uuid.toString());
     }
 
     @Override
