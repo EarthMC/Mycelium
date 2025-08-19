@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api.network;
+package net.earthmc.mycelium.client;
 
 import java.util.Locale;
 

@@ -5,7 +5,7 @@ import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.Listener;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
-import net.earthmc.mycelium.api.network.Platform;
+import net.earthmc.mycelium.client.Platform;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.RedisKey;

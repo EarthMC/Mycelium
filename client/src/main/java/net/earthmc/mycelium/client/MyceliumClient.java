@@ -4,7 +4,6 @@ import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.MyceliumProvider;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
-import net.earthmc.mycelium.api.network.Platform;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
@@ -67,7 +66,6 @@ public class MyceliumClient implements Mycelium, Closeable {
         return this.messagingRegistrar;
     }
 
-    @Override
     public Platform platform() {
         return this.platform;
     }
