@@ -12,29 +12,29 @@ import java.util.UUID;
 @NullMarked
 public interface Player {
     /**
-     * @return The name of this player.
+     * {@return the name of this player}
      */
     String username();
 
     /**
-     * @return The uuid of this player.
+     * {@return the uuid of this player}
      */
     UUID uuid();
 
     /**
-     * @return The server this player is on, or {@code null} if this player is no longer connected.
+     * {@return the server this player is on, or null if this player is no longer connected}
      */
     @Nullable
     Server server();
 
     /**
-     * @return The proxy this player is connected through, or {@code null} if this player is not connected to the network or through a proxy.
+     * {@return the proxy this player is connected through, or null if this player is not connected to the network or through a proxy}
      */
     @Nullable
     Proxy proxy();
 
     /**
-     * @return {@code true} if this player is currently connected to the network.
+     * {@return whether this player is currently connected to the network}
      */
     boolean isOnline();
 

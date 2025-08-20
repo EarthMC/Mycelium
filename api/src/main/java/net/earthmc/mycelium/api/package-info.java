@@ -1,3 +1,6 @@
+/**
+ * Mycelium, a communications library for Minecraft.
+ */
 @NullMarked
 package net.earthmc.mycelium.api;
 

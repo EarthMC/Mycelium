@@ -5,12 +5,12 @@ package net.earthmc.mycelium.api.messaging;
  */
 public interface Listener {
     /**
-     * @return {@code true} if this listener has been successfully unregistered. Un-registration may fail if
+     * {@return whether this listener has been successfully unregistered}
      */
     boolean unregister();
 
     /**
-     * @return The identifier for the channel this listener is for.
+     * {@return the identifier for the channel this listener is for}
      */
     ChannelIdentifier identifier();
 }

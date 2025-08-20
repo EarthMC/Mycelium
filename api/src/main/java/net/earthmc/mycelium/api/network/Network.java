@@ -1,5 +1,6 @@
 package net.earthmc.mycelium.api.network;
 
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -11,30 +12,32 @@ import java.util.Collection;
 @NullMarked
 public interface Network extends PlayerList {
     /**
-     * @return The id of this network.
+     * {@return the id of this network}
      */
     String id();
 
     /**
-     * @return An unmodifiable collection of active proxies part of the network.
+     * {@return an unmodifiable collection of active proxies part of the network}
      */
+    @Unmodifiable
     Collection<Proxy> proxies();
 
     /**
+     * {@return The proxy with the given id, if found}
      * @param id The proxy id to search by.
-     * @return The proxy with the given id, if found.
      */
     @Nullable
     Proxy getProxyById(String id);
 
     /**
-     * @return An unmodifiable collection of active backends.
+     * {@return an unmodifiable collection of active backends}
      */
+    @Unmodifiable
     Collection<Server> servers();
 
     /**
+     * {@return The server with the given id, if found}
      * @param id The server id to search by.
-     * @return The server with the given id, if found.
      */
     @Nullable
     Server getServerById(String id);

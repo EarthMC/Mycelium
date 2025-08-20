@@ -8,7 +8,7 @@ import net.earthmc.mycelium.api.network.command.ConsoleCommand;
  */
 public interface Server extends PlayerList, MessageRecipient {
     /**
-     * @return The server name.
+     * {@return the server name}
      */
     String name();
 

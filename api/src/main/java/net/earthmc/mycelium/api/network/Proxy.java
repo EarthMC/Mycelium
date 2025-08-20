@@ -4,11 +4,11 @@ import net.earthmc.mycelium.api.messaging.MessageRecipient;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 
 /**
- * Represents a proxy frontend that players can connect to.
+ * Represents a proxy that players can connect to.
  */
 public interface Proxy extends PlayerList, MessageRecipient {
     /**
-     * @return The proxy id or name.
+     * {@return the proxy id or name}
      */
     String id();
 
