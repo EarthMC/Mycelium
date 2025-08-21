@@ -75,17 +75,6 @@ public class PaperPlatform extends Platform implements Listener {
         redis().srem(RedisKey.create(client().network().id(), "servers"), this.id());
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        // TODO: does desync need to be checked for?
-        redis().hset(RedisKey.create(client(), "player", event.getPlayer().getUniqueId().toString()), "server", this.id());
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        redis().hdel(RedisKey.create(client(), "player", event.getPlayer().getUniqueId().toString()), "server");
-    }
-
     public MyceliumClient client() {
         return loader.client();
     }
