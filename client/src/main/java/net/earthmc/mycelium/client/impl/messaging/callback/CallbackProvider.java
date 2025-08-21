@@ -1,9 +1,11 @@
-package net.earthmc.mycelium.client.impl.messaging;
+package net.earthmc.mycelium.client.impl.messaging.callback;
 
 import com.google.gson.JsonParseException;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.impl.messaging.IncomingMessageImpl;
+import net.earthmc.mycelium.client.impl.messaging.InternalMessage;
 import net.earthmc.mycelium.client.impl.serialization.GsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,7 @@ import redis.clients.jedis.JedisPubSub;
 
 import java.io.Closeable;
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -73,10 +76,10 @@ public class CallbackProvider implements Closeable {
         this.pollThread.submit(() -> this.client.redis().psubscribe(this.listener, this.channel));
     }
 
-    public <T> void await(String messageUUID, JsonCodec<T> codec, long expireTime, TimeUnit unit, Consumer<IncomingMessage<T>> callback) {
-        final Instant expireInstant = Instant.now().plus(expireTime, unit.toChronoUnit());
+    public <T> void await(String messageUUID, JsonCodec<T> codec, CallbackOptions options, Consumer<IncomingMessage<T>> callback) {
+        final Instant expireInstant = Instant.now().plus(options.lifetime());
 
-        callbacks.put(messageUUID, new Callback<>(expireInstant, codec, callback));
+        callbacks.put(messageUUID, new Callback<>(expireInstant, options, codec, callback));
     }
 
     /**
@@ -97,10 +100,22 @@ public class CallbackProvider implements Closeable {
     private void cleanupExpiredCallbacks() {
         final Instant now = Instant.now();
 
-        callbacks.values().removeIf(next -> next.expiration.isBefore(now));
+        final Iterator<Callback<?>> iterator = this.callbacks.values().iterator();
+        while (iterator.hasNext()) {
+            final Callback<?> callback = iterator.next();
+
+            final boolean remove = callback == null || callback.expiration.isBefore(now);
+            if (remove && callback != null && callback.options.onExpire() != null) {
+                callback.options.onExpire().run();
+            }
+
+            if (remove) {
+                iterator.remove();
+            }
+        }
     }
 
-    private record Callback<T>(Instant expiration, JsonCodec<T> codec, Consumer<IncomingMessage<T>> consumer) {
+    private record Callback<T>(Instant expiration, CallbackOptions options, JsonCodec<T> codec, Consumer<IncomingMessage<T>> consumer) {
         void handle(MyceliumClient client, InternalMessage message) {
             T deserialized;
             try {

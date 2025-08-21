@@ -1,10 +1,10 @@
 package net.earthmc.mycelium.api.messaging;
 
+import net.earthmc.mycelium.api.messaging.callback.CallbackOptionsBuilder;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.time.temporal.TemporalAmount;
 import java.util.function.Consumer;
 
 @NullMarked
@@ -19,17 +19,16 @@ public interface OutgoingMessageBuilder<R, T> {
      */
     OutgoingMessageBuilder<R, T> replyChannel(@Nullable ChannelIdentifier identifier);
 
-    // TODO: callback builders
     /**
      * Attaches a callback to this reply. Callbacks are single-use and have a maximum lifetime.
      *
-     * @param duration The time that this callback will be valid for.
+     * @param options A consumer that can be used to configure extra options for this callback.
      * @param codec The codec to use when deserializing incoming messages.
      * @param consumer The handler for the resulting data.
      * @return {@code this}
      * @param <N> The data type that you expect replies in.
      */
-    <N> OutgoingMessageBuilder<R, T> callback(TemporalAmount duration, JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer);
+    <N> OutgoingMessageBuilder<R, T> callback(Consumer<CallbackOptionsBuilder> options, JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer);
 
     /**
      * Attaches a callback to this reply. Callbacks are single-use and have a maximum lifetime.
@@ -49,11 +48,11 @@ public interface OutgoingMessageBuilder<R, T> {
      * Take care that this method expects the response data to be serialized the same way as the request data. If a different data type
      * is expected, use {@link #callback(JsonCodec, Consumer)}
      *
-     * @param duration The time that this callback will be valid for.
+     * @param options A consumer that can be used to configure extra options for this callback.
      * @param consumer The handler for the resulting data.
      * @return {@code this}
      */
-    OutgoingMessageBuilder<R, T> callback(TemporalAmount duration, Consumer<IncomingMessage<T>> consumer);
+    OutgoingMessageBuilder<R, T> callback(Consumer<CallbackOptionsBuilder> options, Consumer<IncomingMessage<T>> consumer);
 
     /**
      * Attaches a callback to this reply. Callbacks are single-use and have a maximum lifetime.
@@ -66,14 +65,7 @@ public interface OutgoingMessageBuilder<R, T> {
      * @param consumer The handler for the resulting data.
      * @return {@code this}
      */
-    OutgoingMessageBuilder<R, T> callback(Consumer<IncomingMessage<T>> consumer);
-
-    /**
-     * Clears any previously set callback.
-     *
-     * @return {@code this}
-     */
-    OutgoingMessageBuilder<R, T> clearCallback();
+    OutgoingMessageBuilder<R, T> callback(@Nullable Consumer<IncomingMessage<T>> consumer);
 
     /**
      * Sends this message to the receiver.

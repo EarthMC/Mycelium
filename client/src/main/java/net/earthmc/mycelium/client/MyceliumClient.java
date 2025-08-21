@@ -7,7 +7,7 @@ import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
-import net.earthmc.mycelium.client.impl.messaging.CallbackProvider;
+import net.earthmc.mycelium.client.impl.messaging.callback.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

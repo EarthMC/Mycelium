@@ -1,24 +1,23 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
 import com.google.gson.JsonParseException;
+import net.earthmc.mycelium.api.messaging.callback.CallbackOptionsBuilder;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.impl.messaging.callback.CallbackOptions;
 import net.earthmc.mycelium.client.impl.serialization.GsonHelper;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @NullMarked
 public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<R, T> {
-    private static final Duration DEFAULT_CALLBACK_LIFETIME = Duration.ofMinutes(15);
+    private static final Consumer<CallbackOptionsBuilder> DEFAULT_CALLBACK_OPTIONS = options -> {};
 
     private final MyceliumClient client;
     private final String messageReference;
@@ -47,12 +46,16 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
     }
 
     @Override
-    public <N> OutgoingMessageBuilder<R, T> callback(TemporalAmount duration, JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer) {
+    public <N> OutgoingMessageBuilder<R, T> callback(@Nullable Consumer<CallbackOptionsBuilder> options, JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer) {
         registerCallback = () -> {
             replyChannel(ChannelIdentifier.identifier(client.callbacks().channel()));
-            final Duration d = duration instanceof Duration d1 ? d1 : Duration.from(duration);
 
-            client.callbacks().await(this.messageReference, codec, d.toMillis(), TimeUnit.MILLISECONDS, consumer);
+            final CallbackOptions.Builder optionsBuilder = new CallbackOptions.Builder();
+            if (options != null) {
+                options.accept(optionsBuilder);
+            }
+
+            client.callbacks().await(this.messageReference, codec, optionsBuilder.build(), consumer);
         };
 
         return this;
@@ -60,34 +63,27 @@ public class OutgoingMessageBuilderImpl<R, T> implements OutgoingMessageBuilder<
 
     @Override
     public <N> OutgoingMessageBuilder<R, T> callback(JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer) {
-        return callback(DEFAULT_CALLBACK_LIFETIME, codec, consumer);
+        return callback(DEFAULT_CALLBACK_OPTIONS, codec, consumer);
     }
 
     @Override
-    public OutgoingMessageBuilder<R, T> callback(TemporalAmount duration, Consumer<IncomingMessage<T>> consumer) {
+    public OutgoingMessageBuilder<R, T> callback(@Nullable Consumer<CallbackOptionsBuilder> options, @Nullable Consumer<IncomingMessage<T>> consumer) {
+        if (consumer == null) {
+            this.registerCallback = null;
+            return this;
+        }
+
         if (this.codec == null) {
             throw new IllegalArgumentException("A codec is required when listening for a callback.");
         }
 
-        registerCallback = () -> {
-            replyChannel(ChannelIdentifier.identifier(client.callbacks().channel()));
-            final Duration d = duration instanceof Duration d1 ? d1 : Duration.from(duration);
-
-            client.callbacks().await(this.messageReference, this.codec, d.toMillis(), TimeUnit.MILLISECONDS, consumer);
-        };
-
+        this.callback(options, this.codec, consumer);
         return this;
     }
 
     @Override
-    public OutgoingMessageBuilder<R, T> callback(Consumer<IncomingMessage<T>> consumer) {
-        return callback(DEFAULT_CALLBACK_LIFETIME, consumer);
-    }
-
-    @Override
-    public OutgoingMessageBuilder<R, T> clearCallback() {
-        this.registerCallback = null;
-        return this;
+    public OutgoingMessageBuilder<R, T> callback(@Nullable Consumer<IncomingMessage<T>> consumer) {
+        return callback(DEFAULT_CALLBACK_OPTIONS, consumer);
     }
 
     @SuppressWarnings("unchecked")
