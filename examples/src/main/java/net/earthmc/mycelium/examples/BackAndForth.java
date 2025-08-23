@@ -30,7 +30,7 @@ public class BackAndForth {
         // Create a new client instance using the builder, autoregister allows it to be retrieved using the static Mycelium#get method.
         MyceliumClient instance = MyceliumClient.standalone().autoregister().build();
 
-        final Mycelium api = Mycelium.get();
+        final Mycelium api = Mycelium.api();
 
         // A simple record that we're going to be making a codec for
         record TestObject(String name, String nameTwo) {}

@@ -8,13 +8,19 @@ import net.earthmc.mycelium.api.network.Network;
  */
 public interface Mycelium {
     /**
-     * {@return The mycelium api instance}
+     * {@return the mycelium api instance}
      */
-    static Mycelium get() {
+    static Mycelium api() {
         return MyceliumProvider.get();
     }
 
+    /**
+     * {@return the main interface for interacting with the network.}
+     */
     Network network();
 
+    /**
+     * {@return the messaging registrar}
+     */
     MessagingRegistrar messaging();
 }
