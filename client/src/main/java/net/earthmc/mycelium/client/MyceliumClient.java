@@ -6,9 +6,13 @@ import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
+import net.earthmc.mycelium.api.store.Store;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.callback.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
+import net.earthmc.mycelium.client.impl.store.StoreImpl;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPooled;
@@ -19,6 +23,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
+@NullMarked
 public class MyceliumClient implements Mycelium, Closeable {
     private final Logger logger = LoggerFactory.getLogger(MyceliumClient.class);
 
@@ -28,6 +33,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     private final CallbackProvider callbackProvider;
     private final NetworkImpl network;
     private final Platform platform;
+    private final Store storage;
 
     private final String clientId = UUID.randomUUID().toString();
 
@@ -38,6 +44,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.network = new NetworkImpl(platform.environment(), this);
         this.messagingRegistrar = new MessagingRegistrarImpl(this);
         this.callbackProvider = new CallbackProvider(this);
+        this.storage = new StoreImpl(this);
     }
 
     public UnifiedJedis redis() {
@@ -66,6 +73,11 @@ public class MyceliumClient implements Mycelium, Closeable {
         return this.messagingRegistrar;
     }
 
+    @Override
+    public Store dataStore() {
+        return this.storage;
+    }
+
     public Platform platform() {
         return this.platform;
     }
@@ -90,8 +102,8 @@ public class MyceliumClient implements Mycelium, Closeable {
 
         private boolean registerInstance = false;
         private String redisURI = "redis://localhost:6379/";
-        private Function<MyceliumClient, Server> nativeServer = client -> null;
-        private Function<MyceliumClient, Proxy> nativeProxy = client -> null;
+        private Function<MyceliumClient, @Nullable Server> nativeServer = client -> null;
+        private Function<MyceliumClient, @Nullable Proxy> nativeProxy = client -> null;
 
         private Builder(final Platform platform) {
             this.platform = platform;
@@ -106,13 +118,13 @@ public class MyceliumClient implements Mycelium, Closeable {
             return this;
         }
 
-        public Builder nativeServer(final Function<MyceliumClient, Server> nativeServer) {
+        public Builder nativeServer(final Function<MyceliumClient, @Nullable Server> nativeServer) {
             Objects.requireNonNull(nativeServer, "supplier may not be null");
             this.nativeServer = nativeServer;
             return this;
         }
 
-        public Builder nativeProxy(final Function<MyceliumClient, Proxy> nativeProxy) {
+        public Builder nativeProxy(final Function<MyceliumClient, @Nullable Proxy> nativeProxy) {
             Objects.requireNonNull(nativeProxy, "supplier may not be null");
             this.nativeProxy = nativeProxy;
             return this;
