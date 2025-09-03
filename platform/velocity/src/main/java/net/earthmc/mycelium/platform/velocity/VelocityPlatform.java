@@ -120,7 +120,7 @@ public class VelocityPlatform extends Platform {
 
             final String proxyId = client.redis().hget(RedisKey.create(client, "player", uuidString), "proxy");
             if (this.id().equals(proxyId) && proxy.getPlayer(uuid).isEmpty()) {
-                // player is considered to still be on this proxy so something went wrong, clean up data
+                // player is considered to still be on this proxy, clean up stale data
                 cleanupPlayer(username, uuidString);
                 return;
             }
@@ -129,7 +129,7 @@ public class VelocityPlatform extends Platform {
         }
 
         if (alreadyLoggedIn) {
-            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("You are already connected to this server.", NamedTextColor.RED)));
+            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text(this.id() + ": You are already connected to this server.", NamedTextColor.RED)));
         }
     }
 
@@ -139,9 +139,12 @@ public class VelocityPlatform extends Platform {
         final String uuid = player.getUniqueId().toString();
         final String username = player.getUsername().toLowerCase(Locale.ROOT);
 
-        // todo: check if player doesn't exist to prevent any race conditions
+        // Race condition check: kick the player if they connected to another proxy during login
+        if (client.redis().setnx(RedisKey.create(client, "name2uuid", username), uuid) == 0) {
+            player.disconnect(Component.text(this.id() + ": ", NamedTextColor.RED).append(Component.translatable("multiplayer.disconnect.duplicate_login")));
+            return;
+        }
 
-        client.redis().set(RedisKey.create(client, "name2uuid", player.getUsername().toLowerCase(Locale.ROOT)), uuid);
         client.redis().sadd(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
         client.redis().sadd(RedisKey.create(client, "players"), uuid);
 
@@ -178,7 +181,6 @@ public class VelocityPlatform extends Platform {
     }
 
     private void cleanupPlayer(final String username, final String uuid) {
-        // TODO: Ensure that this is not ran when we deny a player from joining due to already being connected.
         client.redis().del(RedisKey.create(client, "name2uuid", username.toLowerCase(Locale.ROOT)));
 
         client.redis().srem(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
