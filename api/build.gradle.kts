@@ -46,6 +46,8 @@ publishing {
     publications {
         create<MavenPublication>("library") {
             from(components.getByName("java"))
+
+            artifactId = "mycelium-api"
         }
     }
 }
