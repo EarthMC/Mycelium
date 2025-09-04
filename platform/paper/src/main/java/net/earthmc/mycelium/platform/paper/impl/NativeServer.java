@@ -15,7 +15,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -65,12 +64,12 @@ public class NativeServer extends ServerImpl {
 
     @Override
     public @Nullable Player getPlayerByName(String name) {
-        return Optional.ofNullable(bukkitServer.getPlayerExact(name)).map(this::fromBukkit).orElseGet(() -> super.getPlayerByName(name));
+        return fromBukkit(bukkitServer.getPlayerExact(name));
     }
 
     @Override
     public @Nullable Player getPlayerByUUID(UUID uuid) {
-        return Optional.ofNullable(bukkitServer.getPlayer(uuid)).map(this::fromBukkit).orElseGet(() -> super.getPlayerByUUID(uuid));
+        return fromBukkit(bukkitServer.getPlayer(uuid));
     }
 
     @Nullable

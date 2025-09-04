@@ -59,12 +59,12 @@ public class NativeProxy extends ProxyImpl {
 
     @Override
     public @Nullable Player getPlayerByName(String name) {
-        return platform.proxy.getPlayer(name).map(this::fromVelocity).orElseGet(() -> super.getPlayerByName(name));
+        return fromVelocity(platform.proxy.getPlayer(name).orElse(null));
     }
 
     @Override
     public @Nullable Player getPlayerByUUID(UUID uuid) {
-        return platform.proxy.getPlayer(uuid).map(this::fromVelocity).orElseGet(() -> super.getPlayerByUUID(uuid));
+        return fromVelocity(platform.proxy.getPlayer(uuid).orElse(null));
     }
 
     @Nullable
