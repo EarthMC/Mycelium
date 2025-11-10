@@ -11,11 +11,15 @@ import net.earthmc.mycelium.client.impl.api.NetworkImpl;
 import net.earthmc.mycelium.client.impl.messaging.callback.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
 import net.earthmc.mycelium.client.impl.store.StoreImpl;
+import net.earthmc.mycelium.client.util.Property;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisClientConfig;
+import redis.clients.jedis.Protocol;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.io.Closeable;
@@ -37,8 +41,8 @@ public class MyceliumClient implements Mycelium, Closeable {
 
     private final String clientId = UUID.randomUUID().toString();
 
-    protected MyceliumClient(final String redisURI, final Platform platform) {
-        this.redisClient = new JedisPooled(redisURI);
+    protected MyceliumClient(final UnifiedJedis client, final Platform platform) {
+        this.redisClient = client;
         this.platform = platform;
 
         this.network = new NetworkImpl(platform.environment(), this);
@@ -101,9 +105,13 @@ public class MyceliumClient implements Mycelium, Closeable {
         private final Platform platform;
 
         private boolean registerInstance = false;
-        private String redisURI = "redis://localhost:6379/";
         private Function<MyceliumClient, @Nullable Server> nativeServer = client -> null;
         private Function<MyceliumClient, @Nullable Proxy> nativeProxy = client -> null;
+
+        private String redisHost = Property.property("mycelium.redis.host", Protocol.DEFAULT_HOST);
+        private int redisPort = Property.property("mycelium.redis.port", Integer::parseInt, Protocol.DEFAULT_PORT);
+        private @Nullable String redisUsername = Property.property("mycelium.redis.username");
+        private @Nullable String redisPassword = Property.property("mycelium.redis.password");
 
         private Builder(final Platform platform) {
             this.platform = platform;
@@ -130,10 +138,34 @@ public class MyceliumClient implements Mycelium, Closeable {
             return this;
         }
 
-        // TODO: methods for connection pooling, clustering/sentinel
+        public Builder redisHost(final String redisHost) {
+            this.redisHost = redisHost;
+            return this;
+        }
+
+        public Builder redisPort(final int redisPort) {
+            this.redisPort = redisPort;
+            return this;
+        }
+
+        public Builder redisUsername(final String redisUsername) {
+            this.redisUsername = redisUsername;
+            return this;
+        }
+
+        public Builder redisPassword(final String redisPassword) {
+            this.redisPassword = redisPassword;
+            return this;
+        }
 
         public MyceliumClient build() {
-            final MyceliumClient client = new MyceliumClient(this.redisURI, this.platform);
+            final HostAndPort hostAndPort = new HostAndPort(this.redisHost, this.redisPort);
+            final JedisClientConfig config = DefaultJedisClientConfig.builder()
+                    .user(this.redisUsername)
+                    .password(this.redisPassword)
+                    .build();
+
+            final MyceliumClient client = new MyceliumClient(new UnifiedJedis(hostAndPort, config), this.platform);
 
             if (this.registerInstance) {
                 MyceliumProvider.register(client);
