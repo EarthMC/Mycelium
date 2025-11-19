@@ -1,3 +1,6 @@
+[versions]
+earthmc-conventions = "1.0.2"
+
 [libraries]
 jspecify = { group = "org.jspecify", name = "jspecify", version = "1.0.0" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "26.0.2" }
@@ -10,3 +13,7 @@ velocity-api = { group = "com.velocitypowered", name = "velocity-api", version =
 paper-api = { group = "io.papermc.paper", name = "paper-api", "version" = "1.21.8-R0.1-SNAPSHOT" }
 
 gson = { group = "com.google.code.gson", name = "gson", version = "2.12.1" }
+
+[plugins]
+conventions-java = { id = "net.earthmc.conventions.java", version.ref = "earthmc-conventions" }
+conventions-publishing = { id = "net.earthmc.conventions.publishing", version.ref = "earthmc-conventions" }

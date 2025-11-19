@@ -1,6 +1,6 @@
 plugins {
     id("java-library")
-    id("maven-publish")
+    alias(libs.plugins.conventions.publishing)
 }
 
 repositories {
@@ -26,28 +26,9 @@ tasks {
     }
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-publishing {
-    repositories {
-        maven {
-            val releasesUrl = "https://repo.earthmc.net/releases"
-            val snapshotsUrl = "https://repo.earthmc.net/snapshots"
-            url = uri(if (project.version.toString().endsWith("-SNAPSHOT")) snapshotsUrl else releasesUrl)
-
-            name = "earthmc"
-            credentials(PasswordCredentials::class)
-        }
-    }
-
-    publications {
-        create<MavenPublication>("library") {
-            from(components.getByName("java"))
-
-            artifactId = "mycelium-api"
-        }
+earthmc {
+    publishing {
+        public = true
+        artifactId = "mycelium-api"
     }
 }
