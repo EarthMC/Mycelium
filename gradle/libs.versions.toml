@@ -1,5 +1,5 @@
 [versions]
-earthmc-conventions = "1.0.2"
+earthmc-conventions = "1.0.7"
 
 [libraries]
 jspecify = { group = "org.jspecify", name = "jspecify", version = "1.0.0" }
