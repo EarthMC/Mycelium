@@ -58,7 +58,7 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
                     try {
                         listener.processIncoming(client, internalMessage);
                     } catch (Throwable throwable) {
-                        logger.warn("Exception occurred while receiving message on channel {}, payload: {}", channel, throwable);
+                        logger.warn("Exception occurred while receiving message on channel {}, payload: {}", channel, message, throwable);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package net.earthmc.mycelium.api;
 
+import net.earthmc.mycelium.api.event.Events;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.store.Store;
@@ -29,4 +30,9 @@ public interface Mycelium {
      * {@return the data store}
      */
     Store dataStore();
+
+    /**
+     * {@return the event manager}
+     */
+    Events events();
 }

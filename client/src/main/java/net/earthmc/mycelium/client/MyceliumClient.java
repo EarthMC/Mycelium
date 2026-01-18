@@ -2,12 +2,14 @@ package net.earthmc.mycelium.client;
 
 import net.earthmc.mycelium.api.Mycelium;
 import net.earthmc.mycelium.api.MyceliumProvider;
+import net.earthmc.mycelium.api.event.Events;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.store.Store;
 import net.earthmc.mycelium.client.impl.api.NetworkImpl;
+import net.earthmc.mycelium.client.impl.event.EventsImpl;
 import net.earthmc.mycelium.client.impl.messaging.callback.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
 import net.earthmc.mycelium.client.impl.store.StoreImpl;
@@ -38,6 +40,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     private final NetworkImpl network;
     private final Platform platform;
     private final Store storage;
+    private final EventsImpl events;
 
     private final String clientId = UUID.randomUUID().toString();
 
@@ -49,6 +52,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.messagingRegistrar = new MessagingRegistrarImpl(this);
         this.callbackProvider = new CallbackProvider(this);
         this.storage = new StoreImpl(this);
+        this.events = new EventsImpl(messagingRegistrar);
     }
 
     public UnifiedJedis redis() {
@@ -82,6 +86,11 @@ public class MyceliumClient implements Mycelium, Closeable {
         return this.storage;
     }
 
+    @Override
+    public Events events() {
+        return this.events;
+    }
+
     public Platform platform() {
         return this.platform;
     }
@@ -95,6 +104,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         this.messagingRegistrar.shutdown();
         this.callbackProvider.close();
         this.redisClient.close();
+        this.events.shutdown();
     }
 
     public Logger logger() {

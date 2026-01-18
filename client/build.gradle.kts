@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    alias(libs.plugins.conventions.publishing)
 }
 
 dependencies {
@@ -10,4 +11,10 @@ dependencies {
     compileOnly(libs.jetbrains.annotations)
     compileOnly(libs.gson)
     compileOnly(libs.slf4j.api)
+}
+
+earthmc {
+    publishing {
+        artifactId = "mycelium-client"
+    }
 }

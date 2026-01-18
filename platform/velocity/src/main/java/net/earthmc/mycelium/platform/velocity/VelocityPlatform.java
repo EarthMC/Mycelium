@@ -19,6 +19,7 @@ import net.earthmc.mycelium.client.Platform;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.impl.event.type.player.PlayerJoinedServerEvent;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
 import net.earthmc.mycelium.client.impl.model.SendMessage;
 import net.earthmc.mycelium.client.impl.model.TransferToServer;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
@@ -198,6 +200,15 @@ public class VelocityPlatform extends Platform {
                 pipe.srem(RedisKey.create(client, "server", previous.getServerInfo().getName().toLowerCase(Locale.ROOT), "players"), uuid);
             });
         }
+
+        final net.earthmc.mycelium.api.network.Player player = client.network().getPlayerByUUID(event.getPlayer().getUniqueId());
+        final Server server = client.network().getServerById(serverName);
+        final Server previousServer = event.getPreviousServer().map(s -> client.network().getServerById(s.getServerInfo().getName().toLowerCase(Locale.ROOT))).orElse(null);
+
+        Objects.requireNonNull(player, "got null for player with name + " + event.getPlayer().getUsername() + " but expected not null");
+        Objects.requireNonNull(server, "got null for server with name " + serverName + " but expected not null");
+
+        client.events().broadcast(new PlayerJoinedServerEvent(player, previousServer, server));
     }
 
     @Subscribe
