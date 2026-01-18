@@ -73,7 +73,7 @@ public class CallbackProvider implements Closeable {
             }
         };
 
-        this.pollThread.submit(() -> this.client.redis().psubscribe(this.listener, this.channel));
+        this.pollThread.submit(() -> this.client.redis().subscribe(this.listener, this.channel));
     }
 
     public <T> void await(String messageUUID, JsonCodec<T> codec, CallbackOptions options, Consumer<IncomingMessage<T>> callback) {
