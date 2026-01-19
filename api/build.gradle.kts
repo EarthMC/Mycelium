@@ -29,6 +29,5 @@ tasks {
 earthmc {
     publishing {
         public = true
-        artifactId = "mycelium-api"
     }
 }

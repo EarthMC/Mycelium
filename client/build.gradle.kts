@@ -12,9 +12,3 @@ dependencies {
     compileOnly(libs.gson)
     compileOnly(libs.slf4j.api)
 }
-
-earthmc {
-    publishing {
-        artifactId = "mycelium-client"
-    }
-}
