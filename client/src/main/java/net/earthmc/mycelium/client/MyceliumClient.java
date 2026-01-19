@@ -13,6 +13,7 @@ import net.earthmc.mycelium.client.impl.event.EventsImpl;
 import net.earthmc.mycelium.client.impl.messaging.callback.CallbackProvider;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
 import net.earthmc.mycelium.client.impl.store.StoreImpl;
+import net.earthmc.mycelium.client.redis.RedisConfiguration;
 import net.earthmc.mycelium.client.util.Property;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -25,6 +26,8 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.io.Closeable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
@@ -118,13 +121,29 @@ public class MyceliumClient implements Mycelium, Closeable {
         private Function<MyceliumClient, @Nullable Server> nativeServer = client -> null;
         private Function<MyceliumClient, @Nullable Proxy> nativeProxy = client -> null;
 
-        private String redisHost = Property.property("mycelium.redis.host", Protocol.DEFAULT_HOST);
-        private int redisPort = Property.property("mycelium.redis.port", Integer::parseInt, Protocol.DEFAULT_PORT);
-        private @Nullable String redisUsername = Property.property("mycelium.redis.username");
-        private @Nullable String redisPassword = Property.property("mycelium.redis.password");
+        private String redisHost;
+        private int redisPort;
+        private @Nullable String redisUsername;
+        private @Nullable String redisPassword;
 
         private Builder(final Platform platform) {
             this.platform = platform;
+
+            // read defaults if settings file is supplied
+            final String settingsFile = Property.property("mycelium.settings-file");
+            final Path settingsFilePath = settingsFile != null ? Path.of(settingsFile) : null;
+            final RedisConfiguration configuration;
+
+            if (settingsFilePath != null && Files.exists(settingsFilePath)) {
+                configuration = RedisConfiguration.fromFile(settingsFilePath);
+            } else {
+                configuration = RedisConfiguration.empty();
+            }
+
+            this.redisHost = configuration.host().orElseGet(() -> Property.property("mycelium.redis.host", Protocol.DEFAULT_HOST));
+            this.redisPort = configuration.port().orElseGet(() -> Property.property("mycelium.redis.port", Integer::parseInt, Protocol.DEFAULT_PORT));
+            this.redisUsername = configuration.username().orElseGet(() -> Property.property("mycelium.redis.username"));
+            this.redisPassword = configuration.password().orElseGet(() -> Property.property("mycelium.redis.password"));
         }
 
         /**

@@ -24,7 +24,7 @@ public class Property {
 
     @Contract("_, !null -> !null")
     public static @Nullable String property(String name, @Nullable String defaultValue) {
-        final String property = System.getProperty(name, System.getenv(name.replaceAll("\\.", "_").toUpperCase(Locale.ROOT)));
+        final String property = System.getProperty(name, System.getenv(name.replaceAll("[.-]", "_").toUpperCase(Locale.ROOT)));
 
         return property != null ? property : defaultValue;
     }
