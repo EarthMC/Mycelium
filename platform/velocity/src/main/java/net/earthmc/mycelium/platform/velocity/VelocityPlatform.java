@@ -216,7 +216,7 @@ public class VelocityPlatform extends Platform {
         cleanupPlayerForLogout(event.getPlayer());
     }
 
-    @Subscribe(priority = Short.MAX_VALUE / 2)
+    @Subscribe(priority = Short.MIN_VALUE / 2)
     public void onProxyPing(ProxyPingEvent event) {
         event.setPing(event.getPing().asBuilder().onlinePlayers(client.network().playerCount()).build());
     }
