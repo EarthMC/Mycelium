@@ -8,7 +8,7 @@ public abstract class Platform {
     protected static final String UNKNOWN_ID = "unknown";
 
     private final String environment = Property.property("mycelium.environment", "prod");
-    private final String id = Property.property("mycelium.id", UNKNOWN_ID);
+    private final String id = Property.property("mycelium.id", Property.property("name", UNKNOWN_ID));
     private final String keyPrefix = "m:" + environment + ":" + platformIdentifier() + ":" + id + ":";
 
     public String key(String fieldName) {
