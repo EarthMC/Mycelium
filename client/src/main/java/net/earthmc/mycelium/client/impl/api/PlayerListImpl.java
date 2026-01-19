@@ -18,6 +18,11 @@ public interface PlayerListImpl extends PlayerList {
 
     MyceliumClient client();
 
+    // Only override on Network to allow passing a native player implementation, the individual platforms can override the other methods.
+    default Player createPlayer(String username, UUID uuid) {
+        return new PlayerImpl(username, uuid, client());
+    }
+
     @Override
     default @NonNull Collection<Player> players() {
         final Set<Player> players = new HashSet<>();
@@ -31,7 +36,7 @@ public interface PlayerListImpl extends PlayerList {
                 continue;
             }
 
-            players.add(new PlayerImpl(username, UUID.fromString(uuid), client()));
+            players.add(createPlayer(username, UUID.fromString(uuid)));
         }
 
         return Set.copyOf(players);
@@ -59,7 +64,7 @@ public interface PlayerListImpl extends PlayerList {
             return null;
         }
 
-        return new PlayerImpl(accurateName, UUID.fromString(uuid), client());
+        return createPlayer(accurateName, UUID.fromString(uuid));
     }
 
     @Override
@@ -74,6 +79,6 @@ public interface PlayerListImpl extends PlayerList {
             return null;
         }
 
-        return new PlayerImpl(name, uuid, client());
+        return createPlayer(name, uuid);
     }
 }

@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.client.impl.api;
 
 import net.earthmc.mycelium.api.network.Network;
+import net.earthmc.mycelium.api.network.Player;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.serialization.Codecs;
@@ -13,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 @NullMarked
 public class NetworkImpl implements Network, PlayerListImpl {
@@ -78,6 +80,18 @@ public class NetworkImpl implements Network, PlayerListImpl {
     @Override
     public MyceliumClient client() {
         return this.client;
+    }
+
+    @Override
+    public Player createPlayer(String username, UUID uuid) {
+        Player nativePlayer = null;
+        if (this.nativeProxy != null) {
+            nativePlayer = this.nativeProxy.getPlayerByUUID(uuid);
+        } else if (this.nativeServer != null) {
+            nativePlayer = this.nativeServer.getPlayerByUUID(uuid);
+        }
+
+        return Objects.requireNonNullElseGet(nativePlayer, () -> new PlayerImpl(username, uuid, client));
     }
 
     private Server createServer(final String name) {
