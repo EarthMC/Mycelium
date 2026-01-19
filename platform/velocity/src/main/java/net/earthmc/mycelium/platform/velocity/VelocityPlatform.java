@@ -10,6 +10,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
@@ -27,10 +28,12 @@ import net.earthmc.mycelium.client.redis.RedisKey;
 import net.earthmc.mycelium.platform.velocity.impl.NativeProxy;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import redis.clients.jedis.AbstractPipeline;
 import redis.clients.jedis.Response;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +48,10 @@ public class VelocityPlatform extends Platform {
 
     @Inject
     public Logger logger;
+
+    @Inject
+    @DataDirectory
+    public Path dataDirectory;
 
     private final MyceliumClient client = MyceliumClient.forPlatform(this).autoregister().nativeProxy(client -> new NativeProxy(this.id(), client, this)).build();
 
@@ -286,5 +293,10 @@ public class VelocityPlatform extends Platform {
     @Override
     public Type type() {
         return Type.PROXY;
+    }
+
+    @Override
+    public @Nullable Path dataDirectory() {
+        return this.dataDirectory;
     }
 }

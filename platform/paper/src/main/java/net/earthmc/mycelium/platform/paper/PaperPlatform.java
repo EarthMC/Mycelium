@@ -10,12 +10,12 @@ import net.earthmc.mycelium.client.impl.model.SendMessage;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import redis.clients.jedis.UnifiedJedis;
+
+import java.nio.file.Path;
 
 public class PaperPlatform extends Platform implements Listener {
     private final PaperLoader loader;
@@ -86,5 +86,10 @@ public class PaperPlatform extends Platform implements Listener {
     @Override
     public Type type() {
         return Type.SERVER;
+    }
+
+    @Override
+    public @Nullable Path dataDirectory() {
+        return this.loader.getDataPath();
     }
 }

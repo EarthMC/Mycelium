@@ -1,7 +1,9 @@
 package net.earthmc.mycelium.client;
 
 import net.earthmc.mycelium.client.util.Property;
+import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.Locale;
 
 public abstract class Platform {
@@ -35,6 +37,10 @@ public abstract class Platform {
      * @return The type of platform.
      */
     public abstract Type type();
+
+    public @Nullable Path dataDirectory() {
+        return null;
+    }
 
     public enum Type {
         STANDALONE,

@@ -29,12 +29,13 @@ import java.io.Closeable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
 @NullMarked
 public class MyceliumClient implements Mycelium, Closeable {
-    private final Logger logger = LoggerFactory.getLogger(MyceliumClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyceliumClient.class);
 
     private final UnifiedJedis redisClient;
 
@@ -111,7 +112,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     }
 
     public Logger logger() {
-        return this.logger;
+        return LOGGER;
     }
 
     public static class Builder {
@@ -131,11 +132,18 @@ public class MyceliumClient implements Mycelium, Closeable {
 
             // read defaults if settings file is supplied
             final String settingsFile = Property.property("mycelium.settings-file");
-            final Path settingsFilePath = settingsFile != null ? Path.of(settingsFile) : null;
+            final Path settingsFilePath = settingsFile != null ? Path.of(settingsFile) : Optional.ofNullable(platform.dataDirectory()).map(dir -> dir.resolve("mycelium.properties")).orElse(null);
             final RedisConfiguration configuration;
 
-            if (settingsFilePath != null && Files.exists(settingsFilePath)) {
-                configuration = RedisConfiguration.fromFile(settingsFilePath);
+            if (settingsFilePath != null) {
+                if (Files.exists(settingsFilePath)) {
+                    configuration = RedisConfiguration.fromFile(settingsFilePath);
+                } else {
+                    if (settingsFile != null) {
+                        LOGGER.error("Could not find the file at path '{}' for option mycelium.settings-file", settingsFile);
+                    }
+                    configuration = RedisConfiguration.empty();
+                }
             } else {
                 configuration = RedisConfiguration.empty();
             }
