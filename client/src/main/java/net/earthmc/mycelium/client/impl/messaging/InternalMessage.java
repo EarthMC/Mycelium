@@ -19,7 +19,7 @@ public class InternalMessage {
     public final String replyTo;
 
     /**
-     * The uuid of the source client, this is so that we don't accidentally listen to our own messages.
+     * The uuid of the source client.
      */
     public final String source;
 

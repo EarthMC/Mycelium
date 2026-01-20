@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.client.impl.messaging;
 
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
+import net.earthmc.mycelium.api.messaging.MessageSender;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
@@ -10,12 +11,14 @@ import java.util.concurrent.CompletableFuture;
 public class IncomingMessageImpl<T> implements IncomingMessage<T> {
     private final MyceliumClient client;
     private final InternalMessage internalMessage;
+    private final MessageSender sender;
     private final JsonCodec<T> codec;
     private final T deserializedData;
 
-    public IncomingMessageImpl(MyceliumClient client, InternalMessage internal, JsonCodec<T> codec, T data) {
+    public IncomingMessageImpl(MyceliumClient client, InternalMessage internal, MessageSender sender, JsonCodec<T> codec, T data) {
         this.client = client;
         this.internalMessage = internal;
+        this.sender = sender;
         this.codec = codec;
         this.deserializedData = data;
     }
@@ -28,6 +31,11 @@ public class IncomingMessageImpl<T> implements IncomingMessage<T> {
     @Override
     public boolean acceptsResponses() {
         return internalMessage.replyTo != null;
+    }
+
+    @Override
+    public MessageSender sender() {
+        return this.sender;
     }
 
     @SuppressWarnings("unchecked")

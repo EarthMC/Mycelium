@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @NullMarked
 public class NativeServer extends ServerImpl {
@@ -34,16 +33,6 @@ public class NativeServer extends ServerImpl {
         bukkitServer.getGlobalRegionScheduler().execute(this.plugin, () -> {
             bukkitServer.dispatchCommand(bukkitServer.getConsoleSender(), command.command());
         });
-    }
-
-    @Override
-    public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier identifier, T data) {
-        throw new UnsupportedOperationException("Cannot message self."); // FIXME
-    }
-
-    @Override
-    public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
-        throw new UnsupportedOperationException("Cannot message self."); // FIXME
     }
 
     @Override

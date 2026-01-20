@@ -36,7 +36,11 @@ public class EventsImpl implements Events {
         }
 
         final ChannelIdentifier.Bound<T> bound = messagingRegistrar.bind(ChannelIdentifier.identifier("events:" + eventClass.getName()), codec);
-        final RegisteredListener<T> registeredListener = (RegisteredListener<T>) messagingRegistrar.registerChannel(bound, incoming -> listener.accept(incoming.data()));
+        final RegisteredListener<T> registeredListener = (RegisteredListener<T>) messagingRegistrar.registerChannel(bound, incoming -> {
+            if (!incoming.sender().isSelf()) {
+                listener.accept(incoming.data());
+            }
+        });
 
         final RegisteredEventImpl<T> registered = new RegisteredEventImpl<>(eventClass, this, codec, listener, registeredListener);
 

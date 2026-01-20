@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface IncomingMessage<T> {
     /**
-     * @return The data associated with this request.
+     * {@return the data associated with this request}
      */
     T data();
 
@@ -19,6 +19,11 @@ public interface IncomingMessage<T> {
      * @return Whether this incoming message accepts replies via the {@link #buildResponse(Object)} family of methods.
      */
     boolean acceptsResponses();
+
+    /**
+     * {@return the sender of this message}
+     */
+    MessageSender sender();
 
     /**
      * Creates a new outgoing message builder that will synchronously return whether this message was successfully delivered to any listeners.

@@ -2,10 +2,12 @@ package net.earthmc.mycelium.client.impl.messaging.callback;
 
 import com.google.gson.JsonParseException;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
+import net.earthmc.mycelium.api.messaging.MessageSender;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.messaging.IncomingMessageImpl;
 import net.earthmc.mycelium.client.impl.messaging.InternalMessage;
+import net.earthmc.mycelium.client.impl.messaging.MessageSenderImpl;
 import net.earthmc.mycelium.client.impl.serialization.GsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,17 +58,16 @@ public class CallbackProvider implements Closeable {
             @Override
             public void onMessage(String channel, String message) {
                 final InternalMessage internalMessage = InternalMessage.REDIS_CODEC.deserialize(message);
-                if (internalMessage.source.equals(client.clientId())) {
-                    return;
-                }
 
                 final Callback<?> callback = callbacks.remove(internalMessage.messageReference);
                 if (callback == null || callback.expiration.isBefore(Instant.now())) {
                     return;
                 }
 
+                final MessageSender sender = new MessageSenderImpl(internalMessage.source.equals(client.clientId()));
+
                 try {
-                    callback.handle(client, internalMessage);
+                    callback.handle(client, internalMessage, sender);
                 } catch (Throwable throwable) {
                     LOGGER.error("An exception occurred while handling callback with id {}", internalMessage.messageReference, throwable);
                 }
@@ -116,7 +117,7 @@ public class CallbackProvider implements Closeable {
     }
 
     private record Callback<T>(Instant expiration, CallbackOptions options, JsonCodec<T> codec, Consumer<IncomingMessage<T>> consumer) {
-        void handle(MyceliumClient client, InternalMessage message) {
+        void handle(MyceliumClient client, InternalMessage message, MessageSender sender) {
             T deserialized;
             try {
                 deserialized = GsonHelper.forCodec(this.codec).fromJson(message.payload, this.codec.type());
@@ -125,7 +126,7 @@ public class CallbackProvider implements Closeable {
                 return;
             }
 
-            consumer.accept(new IncomingMessageImpl<>(client, message, this.codec, deserialized));
+            consumer.accept(new IncomingMessageImpl<>(client, message, sender, this.codec, deserialized));
         }
     }
 }

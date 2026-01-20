@@ -3,6 +3,7 @@ package net.earthmc.mycelium.client.impl.messaging;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.IncomingMessage;
 import net.earthmc.mycelium.api.messaging.Listener;
+import net.earthmc.mycelium.api.messaging.MessageSender;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.client.Platform;
@@ -45,18 +46,17 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
             @Override
             public void onMessage(String channel, String message) {
                 final InternalMessage internalMessage = InternalMessage.REDIS_CODEC.deserialize(message);
-                if (internalMessage.source.equals(client.clientId())) {
-                    return;
-                }
 
                 final List<RegisteredListener<?>> registeredListeners = listeners.get(channel);
                 if (registeredListeners == null) {
                     return;
                 }
 
+                final MessageSender sender = new MessageSenderImpl(internalMessage.source.equals(client.clientId()));
+
                 for (final RegisteredListener<?> listener : registeredListeners) {
                     try {
-                        listener.processIncoming(client, internalMessage);
+                        listener.processIncoming(client, internalMessage, sender);
                     } catch (Throwable throwable) {
                         logger.warn("Exception occurred while receiving message on channel {}, payload: {}", channel, message, throwable);
                     }
