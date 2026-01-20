@@ -9,15 +9,17 @@ import java.time.temporal.TemporalAmount;
  */
 public interface CallbackOptionsBuilder {
     /**
+     * Specifies a runnable for when this callback expires without being used.
      *
-     * @param onExpire
+     * @param onExpire A runnable to run when this callback expires without being used.
      * @return {@code this}
      */
     CallbackOptionsBuilder onExpire(@Nullable Runnable onExpire);
 
     /**
      * Specifies the lifetime for this callback.
-     * @param lifetime
+     *
+     * @param lifetime The callback lifetime.
      * @return {@code this}
      */
     CallbackOptionsBuilder lifetime(@Nullable TemporalAmount lifetime);

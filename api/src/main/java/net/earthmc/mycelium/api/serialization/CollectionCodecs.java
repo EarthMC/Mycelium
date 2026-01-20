@@ -29,6 +29,8 @@ import java.util.function.Supplier;
  * @see MapCodecs
  */
 public final class CollectionCodecs {
+    private CollectionCodecs() {}
+
     /**
      * Creates a new array list based collection codec.
      *

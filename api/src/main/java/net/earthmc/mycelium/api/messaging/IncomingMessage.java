@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * An incoming message on a channel.
  *
- * @param <T> Class extending JsonSerializable.
+ * @param <T> The type of the incoming data.
  */
 public interface IncomingMessage<T> {
     /**
@@ -16,7 +16,7 @@ public interface IncomingMessage<T> {
     T data();
 
     /**
-     * @return Whether this incoming message accepts replies via the {@link #buildResponse(Object)} family of methods.
+     * {@return whether this incoming message accepts replies via the buildResponse family of methods}
      */
     boolean acceptsResponses();
 
@@ -31,6 +31,8 @@ public interface IncomingMessage<T> {
      * @param data The data to send inside this response.
      * @return A new response builder.
      * @throws IllegalArgumentException if the provided data could not be serialized.
+     * @throws IllegalStateException if {@link #acceptsResponses()} is false.
+     * @param <N> The type of the data to send in response, must be trivially serializable to not throw, use {@link #buildSyncResponse(JsonCodec, Object)} otherwise.
      */
     <N> OutgoingMessageBuilder<Boolean, N> buildSyncResponse(N data);
 
@@ -41,6 +43,8 @@ public interface IncomingMessage<T> {
      * @param data The data to send inside this response.
      * @return A new response builder.
      * @throws IllegalArgumentException if the provided data could not be serialized with the given codec.
+     * @throws IllegalStateException if {@link #acceptsResponses()} is false.
+     * @param <N> The type of the data to send in response.
      */
     <N> OutgoingMessageBuilder<Boolean, N> buildSyncResponse(JsonCodec<N> codec, N data);
 
@@ -50,6 +54,8 @@ public interface IncomingMessage<T> {
      * @param data The data to send inside this response.
      * @return A new response builder.
      * @throws IllegalArgumentException if the provided data could not be serialized.
+     * @throws IllegalStateException if {@link #acceptsResponses()} is false.
+     * @param <N> The type of the data to send in response, must be trivially serializable to not throw, use {@link #buildSyncResponse(JsonCodec, Object)} otherwise.
      */
     <N> OutgoingMessageBuilder<CompletableFuture<Boolean>, N> buildResponse(N data);
 
@@ -60,6 +66,8 @@ public interface IncomingMessage<T> {
      * @param data The data to send inside this response.
      * @return A new response builder.
      * @throws IllegalArgumentException if the provided data could not be serialized with the given codec.
+     * @throws IllegalStateException if {@link #acceptsResponses()} is false.
+     * @param <N> The type of the data to send in response.
      */
     <N> OutgoingMessageBuilder<CompletableFuture<Boolean>, N> buildResponse(JsonCodec<N> codec, N data);
 }

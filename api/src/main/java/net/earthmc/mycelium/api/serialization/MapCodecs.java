@@ -20,6 +20,8 @@ import java.util.function.Supplier;
  * @see CollectionCodecs
  */
 public final class MapCodecs {
+    private MapCodecs() {}
+
     /**
      * Constructs a new map codec using a default linked map implementation.
      *

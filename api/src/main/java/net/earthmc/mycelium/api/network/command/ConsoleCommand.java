@@ -12,6 +12,9 @@ import net.earthmc.mycelium.api.serialization.JsonCodec;
  * @see Proxy#runConsoleCommand(ConsoleCommand)
  */
 public class ConsoleCommand {
+    /**
+     * A codec capable of serializing a {@link ConsoleCommand}.
+     */
     public static final JsonCodec<ConsoleCommand> CODEC = JsonCodec.simple();
 
     private final String commandLine;
@@ -26,6 +29,8 @@ public class ConsoleCommand {
     }
 
     /**
+     * Returns a new {@link ConsoleCommand} for the given command.
+     *
      * @param commandLine The command to run.
      * @return A new console command instance.
      */
@@ -34,7 +39,7 @@ public class ConsoleCommand {
     }
 
     /**
-     * @return The command to run.
+     * {@return the command to run}
      */
     public String command() {
         return this.commandLine;

@@ -17,7 +17,9 @@ import java.lang.reflect.Type;
  */
 public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
     /**
-     * @return The type for {@link T}
+     * Returns the type for {@link T}.
+     *
+     * @return the type for {@link T}
      */
     Type type();
 
@@ -47,6 +49,10 @@ public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
         return simple((Class<T>) callingClass);
     }
 
+    /**
+     * Marker class for a codec for objects that can be serialized with a default Gson instance.
+     * @param <T> The object type.
+     */
     @ApiStatus.Internal
     final class Simple<T> implements JsonCodec<T> {
         private final Class<T> typeClass;

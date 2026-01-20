@@ -6,6 +6,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * A builder for outgoing messages.
+ * @param <R> The type that will be returned when {@link #send()} is used.
+ * @param <T> The type of data that is being sent.
+ */
 public interface OutgoingMessageBuilder<R, T> {
     /**
      * Sets the channel to listen for any potential replies to. By default, responses will not expect replies.

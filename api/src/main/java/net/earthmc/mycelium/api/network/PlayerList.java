@@ -22,21 +22,21 @@ public interface PlayerList {
     int playerCount();
 
     /**
-     * @return The player with the given name, or {@code null} if not found.
+     * {@return the player with the given name, or null if not found}
      * @param name The name of the player.
      */
     @Nullable
     Player getPlayerByName(String name);
 
     /**
-     * @return The player with the given uuid, or {@code null} if not found.
+     * {@return the player with the given uuid, or null if not found}
      * @param uuid The uuid of the player.
      */
     @Nullable
     Player getPlayerByUUID(UUID uuid);
 
     /**
-     * @return Whether we have a player with the given name.
+     * {@return Whether we have a player with the given name}
      * @param name The name of the player.
      */
     default boolean hasPlayer(String name) {
@@ -44,7 +44,7 @@ public interface PlayerList {
     }
 
     /**
-     * @return Whether we have a player with the given uuid.
+     * {@return whether we have a player with the given uuid}
      * @param uuid The uuid of the player.
      */
     default boolean hasPlayer(UUID uuid) {

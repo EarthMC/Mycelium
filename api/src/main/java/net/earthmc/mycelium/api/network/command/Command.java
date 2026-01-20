@@ -56,9 +56,16 @@ public class Command {
     }
 
     /**
-     * The target for a command.
+     * The target for a command (where you want to run it).
      */
     public enum Target {
-        BACKEND, PROXY
+        /**
+         * A backend target.
+         */
+        BACKEND,
+        /**
+         * A proxy target.
+         */
+        PROXY
     }
 }
