@@ -1,7 +1,6 @@
 package net.earthmc.mycelium.api.network;
 
 import org.jetbrains.annotations.Unmodifiable;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -9,7 +8,6 @@ import java.util.Collection;
 /**
  * Represents the whole network being managed by mycelium.
  */
-@NullMarked
 public interface Network extends PlayerList {
     /**
      * {@return the id of this network}

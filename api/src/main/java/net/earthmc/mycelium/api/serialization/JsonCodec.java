@@ -7,7 +7,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.Type;
 
@@ -16,7 +15,6 @@ import java.lang.reflect.Type;
  *
  * @param <T> The object type.
  */
-@NullMarked
 public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
     /**
      * @return The type for {@link T}

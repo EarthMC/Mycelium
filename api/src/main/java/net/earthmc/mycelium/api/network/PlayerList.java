@@ -1,7 +1,6 @@
 package net.earthmc.mycelium.api.network;
 
 import org.jetbrains.annotations.Unmodifiable;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -10,7 +9,6 @@ import java.util.UUID;
 /**
  * Represents something that can hold players.
  */
-@NullMarked
 public interface PlayerList {
     /**
      * {@return an unmodifiable collection of players}

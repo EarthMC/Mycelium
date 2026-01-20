@@ -2,12 +2,10 @@ package net.earthmc.mycelium.api.messaging;
 
 import net.earthmc.mycelium.api.messaging.callback.CallbackOptionsBuilder;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-@NullMarked
 public interface OutgoingMessageBuilder<R, T> {
     /**
      * Sets the channel to listen for any potential replies to. By default, responses will not expect replies.

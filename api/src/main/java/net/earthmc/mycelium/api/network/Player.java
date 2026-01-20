@@ -1,7 +1,6 @@
 package net.earthmc.mycelium.api.network;
 
 import net.earthmc.mycelium.api.network.command.Command;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -9,7 +8,6 @@ import java.util.UUID;
 /**
  * Represents a player connected to the network.
  */
-@NullMarked
 public interface Player {
     /**
      * {@return the name of this player}

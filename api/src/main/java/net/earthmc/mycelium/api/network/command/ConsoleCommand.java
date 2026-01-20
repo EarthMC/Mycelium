@@ -3,7 +3,6 @@ package net.earthmc.mycelium.api.network.command;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * Represents a command that will be executed from console.
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NullMarked;
  * @see Server#runConsoleCommand(ConsoleCommand)
  * @see Proxy#runConsoleCommand(ConsoleCommand)
  */
-@NullMarked
 public class ConsoleCommand {
     public static final JsonCodec<ConsoleCommand> CODEC = JsonCodec.simple();
 

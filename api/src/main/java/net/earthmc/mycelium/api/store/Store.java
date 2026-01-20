@@ -1,7 +1,6 @@
 package net.earthmc.mycelium.api.store;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.time.temporal.TemporalAmount;
@@ -10,7 +9,6 @@ import java.util.Map;
 /**
  * Provides an interface for persistent and shared storage.
  */
-@NullMarked
 public interface Store {
     /**
      * Gets the value for the given key, or null if unset.

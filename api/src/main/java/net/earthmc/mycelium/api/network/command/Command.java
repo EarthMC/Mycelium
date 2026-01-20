@@ -1,7 +1,6 @@
 package net.earthmc.mycelium.api.network.command;
 
 import net.earthmc.mycelium.api.network.Player;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * A class for holding information about a command.
@@ -9,7 +8,6 @@ import org.jspecify.annotations.NullMarked;
  *
  * @implNote commandLine will always start with a slash.
  */
-@NullMarked
 public class Command {
     private final Target target;
     private final String commandLine;
