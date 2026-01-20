@@ -6,10 +6,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -30,7 +30,7 @@ public final class MapCodecs {
      * @param <V> Value type.
      */
     public static <K, V> JsonCodec<Map<K, V>> map(JsonCodec<K> keyCodec, JsonCodec<V> valueCodec) {
-        return create(keyCodec, valueCodec, LinkedTreeMap.class, LinkedTreeMap::new);
+        return create(keyCodec, valueCodec, LinkedHashMap.class, LinkedHashMap::new);
     }
 
     /**
