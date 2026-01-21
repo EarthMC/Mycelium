@@ -1,5 +1,6 @@
 package net.earthmc.mycelium.platform.velocity;
 
+import com.google.common.base.Suppliers;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -40,6 +41,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
 public class VelocityPlatform extends Platform {
@@ -54,6 +57,8 @@ public class VelocityPlatform extends Platform {
     public Path dataDirectory;
 
     private final MyceliumClient client = MyceliumClient.forPlatform(this).autoregister().nativeProxy(client -> new NativeProxy(this.id(), client, this)).build();
+
+    private final Supplier<Integer> playerCountSupplier = Suppliers.memoizeWithExpiration(() -> client.network().playerCount(), 3L, TimeUnit.SECONDS);
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
@@ -225,7 +230,7 @@ public class VelocityPlatform extends Platform {
 
     @Subscribe(priority = Short.MIN_VALUE / 2)
     public void onProxyPing(ProxyPingEvent event) {
-        event.setPing(event.getPing().asBuilder().onlinePlayers(client.network().playerCount()).build());
+        event.setPing(event.getPing().asBuilder().onlinePlayers(playerCountSupplier.get()).build());
     }
 
     private void cleanupPlayerForLogout(final Player player) {
