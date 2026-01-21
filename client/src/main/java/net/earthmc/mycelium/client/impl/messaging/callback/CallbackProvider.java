@@ -95,7 +95,7 @@ public class CallbackProvider implements Closeable {
         this.listener.unsubscribe();
 
         this.cleanupThread.shutdown();
-        this.pollThread.shutdown();;
+        this.pollThread.shutdown();
     }
 
     private void cleanupExpiredCallbacks() {
@@ -106,13 +106,15 @@ public class CallbackProvider implements Closeable {
             final Callback<?> callback = iterator.next();
 
             final boolean remove = callback == null || callback.expiration.isBefore(now);
-            if (remove && callback != null && callback.options.onExpire() != null) {
+            if (!remove) {
+                continue;
+            }
+
+            if (callback != null && callback.options.onExpire() != null) {
                 callback.options.onExpire().run();
             }
 
-            if (remove) {
-                iterator.remove();
-            }
+            iterator.remove();
         }
     }
 
