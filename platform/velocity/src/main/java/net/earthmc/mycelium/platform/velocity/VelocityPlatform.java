@@ -225,6 +225,10 @@ public class VelocityPlatform extends Platform {
 
     @Subscribe
     public void onPlayerQuit(DisconnectEvent event) {
+        if (event.getLoginStatus() == DisconnectEvent.LoginStatus.CONFLICTING_LOGIN) {
+            return;
+        }
+
         cleanupPlayerForLogout(event.getPlayer());
     }
 
