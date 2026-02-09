@@ -1,7 +1,5 @@
 package net.earthmc.mycelium.platform.velocity.impl;
 
-import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
-import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
 import net.earthmc.mycelium.api.network.Player;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
