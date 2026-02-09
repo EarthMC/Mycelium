@@ -7,7 +7,7 @@ import net.earthmc.mycelium.api.serialization.JsonCodec;
 /**
  * Represents a command that will be executed from console.
  *
- * @implNote Like actual console commands, commandLine does not start with a slash.
+ * @implNote commandLine does not start with a slash.
  * @see Server#runConsoleCommand(ConsoleCommand)
  * @see Proxy#runConsoleCommand(ConsoleCommand)
  */
@@ -21,7 +21,7 @@ public class ConsoleCommand {
 
     private ConsoleCommand(String commandLine) {
         commandLine = commandLine.trim();
-        this.commandLine = commandLine.startsWith("/") ? commandLine.substring(1) : commandLine;
+        this.commandLine = (commandLine.startsWith("/") ? commandLine.substring(1) : commandLine).trim();
 
         if (this.commandLine.isEmpty()) {
             throw new IllegalArgumentException("command may not be empty.");

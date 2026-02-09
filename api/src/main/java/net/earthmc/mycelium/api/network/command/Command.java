@@ -6,15 +6,18 @@ import net.earthmc.mycelium.api.network.Player;
  * A class for holding information about a command.
  * @see Player#runCommand(Command)
  *
- * @implNote commandLine will always start with a slash.
+ * @implNote commandLine never starts with a slash
  */
 public class Command {
     private final Target target;
     private final String commandLine;
 
-    private Command(final Target target, final String commandLine) {
+    private Command(final Target target, String commandLine) {
         this.target = target;
-        this.commandLine = (commandLine.startsWith("/") ? commandLine : "/" + commandLine).trim();
+
+        // Trim both before removing leading slashes and after
+        commandLine = commandLine.trim();
+        this.commandLine = (commandLine.startsWith("/") ? commandLine.substring(1) : commandLine).trim();
 
         if (this.commandLine.isEmpty()) {
             throw new IllegalArgumentException("command may not be empty.");
