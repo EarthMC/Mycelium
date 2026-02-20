@@ -22,20 +22,20 @@ public class PaperPlatform extends Platform implements Listener {
     private final Logger logger;
     private final Server server;
 
-    private final String serversKey;
+    private String serversKey;
 
     public PaperPlatform(final PaperLoader loader) {
         this.loader = loader;
         this.logger = loader.getSLF4JLogger();
         this.server = loader.getServer();
-
-        this.serversKey = RedisKey.create(loader.client(), "servers");
     }
 
     public void enable() {
         if (this.id().equals(UNKNOWN_ID)) {
             throw new IllegalStateException("No id has been set with the 'mycelium.id' or 'name' system properties!");
         }
+
+        this.serversKey = RedisKey.create(loader.client(), "servers");
 
         final MessagingRegistrar registrar = client().messaging();
 
