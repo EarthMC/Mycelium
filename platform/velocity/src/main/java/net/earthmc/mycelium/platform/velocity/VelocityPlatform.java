@@ -60,6 +60,9 @@ public class VelocityPlatform extends Platform {
 
     private final Supplier<Integer> playerCountSupplier = Suppliers.memoizeWithExpiration(() -> client.network().playerCount(), 3L, TimeUnit.SECONDS);
 
+    private final String proxyPlayersKey = RedisKey.create(client, "proxy", this.id(), "players");
+    private final String networkPlayersKey = RedisKey.create(client, "players");
+
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         if (this.id().equals(UNKNOWN_ID)) {
@@ -189,8 +192,8 @@ public class VelocityPlatform extends Platform {
     public void initializePlayerData(final Player player, final AbstractPipeline pipe) {
         final String uuid = player.getUniqueId().toString();
 
-        pipe.sadd(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
-        pipe.sadd(RedisKey.create(client, "players"), uuid);
+        pipe.sadd(proxyPlayersKey, uuid);
+        pipe.sadd(networkPlayersKey, uuid);
 
         final String playerHashKey = RedisKey.create(client, "player", uuid);
         pipe.hset(playerHashKey, "name", player.getUsername());
@@ -250,8 +253,8 @@ public class VelocityPlatform extends Platform {
     private void cleanupPlayer(final String username, final String uuid, final AbstractPipeline pipe) {
         pipe.del(RedisKey.create(client, "name2uuid", username.toLowerCase(Locale.ROOT)));
 
-        pipe.srem(RedisKey.create(client, "proxy", this.id(), "players"), uuid);
-        pipe.srem(RedisKey.create(client, "players"), uuid);
+        pipe.srem(proxyPlayersKey, uuid);
+        pipe.srem(networkPlayersKey, uuid);
         pipe.del(RedisKey.create(client, "player", uuid));
 
         for (final Server server : client.network().servers()) {
@@ -264,7 +267,6 @@ public class VelocityPlatform extends Platform {
         try (final AbstractPipeline pipe = client.redis().pipelined()) {
             Map<String, Response<List<String>>> playerData = new HashMap<>();
 
-            final String proxyPlayersKey = RedisKey.create(client, "proxy", this.id(), "players");
             for (final String uuid : client.redis().keys(proxyPlayersKey)) {
                 final Response<List<String>> fields = pipe.hmget(RedisKey.create(client, "player", uuid), "name", "proxy");
 

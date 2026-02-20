@@ -22,10 +22,14 @@ public class PaperPlatform extends Platform implements Listener {
     private final Logger logger;
     private final Server server;
 
+    private final String serversKey;
+
     public PaperPlatform(final PaperLoader loader) {
         this.loader = loader;
         this.logger = loader.getSLF4JLogger();
         this.server = loader.getServer();
+
+        this.serversKey = RedisKey.create(loader.client(), "servers");
     }
 
     public void enable() {
@@ -68,11 +72,11 @@ public class PaperPlatform extends Platform implements Listener {
             }
         });
 
-        redis().sadd(RedisKey.create(client().network().id(), "servers"), this.id());
+        redis().sadd(serversKey, this.id());
     }
 
     public void disable() {
-        redis().srem(RedisKey.create(client().network().id(), "servers"), this.id());
+        redis().srem(serversKey, this.id());
     }
 
     public MyceliumClient client() {
