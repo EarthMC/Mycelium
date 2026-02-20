@@ -45,5 +45,4 @@ Format for channels registered through the api.
 Custom channels may be registered through the API
 
 ### KV Key Format
-Mycelium has a KV API for consumers to use, values stored using this API are formatted the following way:
 `m:{env}:store:{key}`
