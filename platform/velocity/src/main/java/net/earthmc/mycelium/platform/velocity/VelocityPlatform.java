@@ -288,7 +288,7 @@ public class VelocityPlatform extends Platform {
                 final String name = fields.get(0);
                 final String proxy = fields.get(1);
 
-                if (proxy.equals(this.id())) {
+                if (this.id().equals(proxy)) {
                     if (shuttingDown || this.proxy.getPlayer(name).isEmpty()) {
                         // proxy still points to this one despite player not being online, meaning this is stale data
                         cleanupPlayer(name, uuid, pipe);
