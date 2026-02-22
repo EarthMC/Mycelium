@@ -6,7 +6,8 @@ import net.earthmc.mycelium.api.messaging.Listener;
 import net.earthmc.mycelium.api.messaging.MessageSender;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.messaging.OutgoingMessageBuilder;
-import net.earthmc.mycelium.client.Platform;
+import net.earthmc.mycelium.api.platform.PlatformType;
+import net.earthmc.mycelium.client.AbstractPlatform;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.RedisKey;
@@ -106,9 +107,9 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
 
     @Override
     public <T> Listener registerPlatformChannel(ChannelIdentifier.Bound<T> identifier, Consumer<IncomingMessage<T>> receiver) {
-        final Platform platform = this.client.platform();
+        final AbstractPlatform platform = this.client.platform();
 
-        if (platform.type() == Platform.Type.STANDALONE) {
+        if (platform.type() == PlatformType.STANDALONE) {
             throw new IllegalStateException("Cannot register a platform-relative channel on a standalone platform.");
         }
 

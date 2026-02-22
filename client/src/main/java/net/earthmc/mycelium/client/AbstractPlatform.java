@@ -1,12 +1,16 @@
 package net.earthmc.mycelium.client;
 
+import net.earthmc.mycelium.api.platform.Platform;
+import net.earthmc.mycelium.api.platform.PlatformType;
 import net.earthmc.mycelium.client.util.Property;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Locale;
 
-public abstract class Platform {
+@NullMarked
+public abstract class AbstractPlatform implements Platform {
     protected static final String UNKNOWN_ID = "unknown";
 
     private final String environment = Property.property("mycelium.environment", "prod");
@@ -21,6 +25,7 @@ public abstract class Platform {
         return this.environment;
     }
 
+    @Override
     public String id() {
         return id;
     }
@@ -36,15 +41,9 @@ public abstract class Platform {
      *
      * @return The type of platform.
      */
-    public abstract Type type();
+    public abstract PlatformType type();
 
     public @Nullable Path dataDirectory() {
         return null;
-    }
-
-    public enum Type {
-        STANDALONE,
-        SERVER,
-        PROXY
     }
 }

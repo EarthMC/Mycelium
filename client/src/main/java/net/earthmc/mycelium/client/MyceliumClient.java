@@ -42,13 +42,13 @@ public class MyceliumClient implements Mycelium, Closeable {
     private final MessagingRegistrarImpl messagingRegistrar;
     private final CallbackProvider callbackProvider;
     private final NetworkImpl network;
-    private final Platform platform;
+    private final AbstractPlatform platform;
     private final Store storage;
     private final EventsImpl events;
 
     private final String clientId = UUID.randomUUID().toString();
 
-    protected MyceliumClient(final UnifiedJedis client, final Platform platform) {
+    protected MyceliumClient(final UnifiedJedis client, final AbstractPlatform platform) {
         this.redisClient = client;
         this.platform = platform;
 
@@ -71,7 +71,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         return new Builder(new StandalonePlatform());
     }
 
-    public static Builder forPlatform(final Platform platform) {
+    public static Builder forPlatform(final AbstractPlatform platform) {
         return new Builder(platform);
     }
 
@@ -95,7 +95,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         return this.events;
     }
 
-    public Platform platform() {
+    public AbstractPlatform platform() {
         return this.platform;
     }
 
@@ -116,7 +116,7 @@ public class MyceliumClient implements Mycelium, Closeable {
     }
 
     public static class Builder {
-        private final Platform platform;
+        private final AbstractPlatform platform;
 
         private boolean registerInstance = false;
         private Function<MyceliumClient, @Nullable Server> nativeServer = client -> null;
@@ -127,7 +127,7 @@ public class MyceliumClient implements Mycelium, Closeable {
         private @Nullable String redisUsername;
         private @Nullable String redisPassword;
 
-        private Builder(final Platform platform) {
+        private Builder(final AbstractPlatform platform) {
             this.platform = platform;
 
             // read defaults if settings file is supplied

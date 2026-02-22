@@ -2,7 +2,8 @@ package net.earthmc.mycelium.platform.paper;
 
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
-import net.earthmc.mycelium.client.Platform;
+import net.earthmc.mycelium.api.platform.PlatformType;
+import net.earthmc.mycelium.client.AbstractPlatform;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
@@ -17,7 +18,7 @@ import redis.clients.jedis.UnifiedJedis;
 
 import java.nio.file.Path;
 
-public class PaperPlatform extends Platform implements Listener {
+public class PaperPlatform extends AbstractPlatform implements Listener {
     private final PaperLoader loader;
     private final Logger logger;
     private final Server server;
@@ -88,8 +89,8 @@ public class PaperPlatform extends Platform implements Listener {
     }
 
     @Override
-    public Type type() {
-        return Type.SERVER;
+    public PlatformType type() {
+        return PlatformType.SERVER;
     }
 
     @Override

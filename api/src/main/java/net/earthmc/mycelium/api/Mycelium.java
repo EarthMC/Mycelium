@@ -3,6 +3,7 @@ package net.earthmc.mycelium.api;
 import net.earthmc.mycelium.api.event.Events;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.network.Network;
+import net.earthmc.mycelium.api.platform.Platform;
 import net.earthmc.mycelium.api.store.Store;
 
 /**
@@ -35,4 +36,9 @@ public interface Mycelium {
      * {@return the event manager}
      */
     Events events();
+
+    /**
+     * {@return the current running platform}
+     */
+    Platform platform();
 }

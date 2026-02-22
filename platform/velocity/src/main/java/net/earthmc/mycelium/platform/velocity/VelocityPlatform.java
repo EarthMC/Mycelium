@@ -17,7 +17,8 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
-import net.earthmc.mycelium.client.Platform;
+import net.earthmc.mycelium.api.platform.PlatformType;
+import net.earthmc.mycelium.client.AbstractPlatform;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
-public class VelocityPlatform extends Platform {
+public class VelocityPlatform extends AbstractPlatform {
     @Inject
     public ProxyServer proxy;
 
@@ -302,8 +303,8 @@ public class VelocityPlatform extends Platform {
     }
 
     @Override
-    public Type type() {
-        return Type.PROXY;
+    public PlatformType type() {
+        return PlatformType.PROXY;
     }
 
     @Override

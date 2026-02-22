@@ -1,13 +1,10 @@
 package net.earthmc.mycelium.client;
 
-public class StandalonePlatform extends Platform {
-    @Override
-    public String platformIdentifier() {
-        return "standalone";
-    }
+import net.earthmc.mycelium.api.platform.PlatformType;
 
+public class StandalonePlatform extends AbstractPlatform {
     @Override
-    public Type type() {
-        return Type.STANDALONE;
+    public PlatformType type() {
+        return PlatformType.STANDALONE;
     }
 }
