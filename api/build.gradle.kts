@@ -19,7 +19,7 @@ tasks {
 
         options.use()
         options.links(
-            "https://www.javadoc.io/doc/com.google.code.gson/gson/${libs.gson.get().version}/"
+            "https://www.javadocs.dev/com.google.code.gson/gson/${libs.gson.get().version}/"
         )
 
         options.tags("apiNote", "implNote")
