@@ -219,12 +219,14 @@ public class VelocityPlatform extends AbstractPlatform {
 
         final net.earthmc.mycelium.api.network.Player player = client.network().getPlayerByUUID(event.getPlayer().getUniqueId());
         final Server server = client.network().getServerById(serverName);
+
+        if (player == null || server == null) {
+            logger.debug("Not calling PlayerJoinedServerEvent for {} because their player or server instance is null.", event.getPlayer().getUsername());
+            return;
+        }
+
         final Server previousServer = event.getPreviousServer().map(s -> client.network().getServerById(s.getServerInfo().getName().toLowerCase(Locale.ROOT))).orElse(null);
-
-        Objects.requireNonNull(player, "got null for player with name + " + event.getPlayer().getUsername() + " but expected not null");
-        Objects.requireNonNull(server, "got null for server with name " + serverName + " but expected not null");
-
-        client.events().broadcast(new PlayerJoinedServerEvent(player, previousServer, server));
+        client.events().broadcastEvent(new PlayerJoinedServerEvent(player, previousServer, server));
     }
 
     @Subscribe

@@ -1,7 +1,7 @@
 package net.earthmc.mycelium.client.impl.event;
 
 import net.earthmc.mycelium.api.event.Event;
-import net.earthmc.mycelium.api.event.RegisteredEvent;
+import net.earthmc.mycelium.api.event.EventListener;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.impl.messaging.RegisteredListener;
 import org.slf4j.Logger;
@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 /**
  * Represents a subscription to a single event
  */
-public record RegisteredEventImpl<T extends Event>(Class<T> eventClass, EventsImpl eventsManager, JsonCodec<T> codec, Consumer<T> listener, RegisteredListener<T> registeredListener) implements RegisteredEvent {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegisteredEventImpl.class);
+public record EventListenerImpl<T extends Event>(Class<T> eventClass, EventsImpl eventsManager, JsonCodec<T> codec, Consumer<T> listener, RegisteredListener<T> registeredListener) implements EventListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventListenerImpl.class);
 
     @SuppressWarnings("unchecked")
     public void onEventReceived(final Event eventInstance) {

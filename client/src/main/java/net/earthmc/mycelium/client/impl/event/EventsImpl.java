@@ -2,7 +2,7 @@ package net.earthmc.mycelium.client.impl.event;
 
 import net.earthmc.mycelium.api.event.Event;
 import net.earthmc.mycelium.api.event.Events;
-import net.earthmc.mycelium.api.event.RegisteredEvent;
+import net.earthmc.mycelium.api.event.EventListener;
 import net.earthmc.mycelium.api.event.player.PlayerJoinedServerEvent;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class EventsImpl implements Events {
-    private final Map<Class<?>, List<RegisteredEventImpl<?>>> eventListeners = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<EventListenerImpl<?>>> eventListeners = new ConcurrentHashMap<>();
     private final Map<Class<?>, JsonCodec<?>> registeredEvents = new ConcurrentHashMap<>();
     private final Map<Class<?>, Class<?>> implToInterface = new ConcurrentHashMap<>();
     private final Object writeLock = new Object();
@@ -29,7 +29,7 @@ public class EventsImpl implements Events {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Event> RegisteredEvent registerEvent(Class<T> eventClass, Consumer<T> listener) {
+    public <T extends Event> EventListener registerEvent(Class<T> eventClass, Consumer<T> listener) {
         final JsonCodec<T> codec = (JsonCodec<T>) registeredEvents.get(eventClass);
         if (codec == null) {
             throw new IllegalArgumentException("Event class '" + eventClass.getName() + "' is not a registered event.");
@@ -42,7 +42,7 @@ public class EventsImpl implements Events {
             }
         });
 
-        final RegisteredEventImpl<T> registered = new RegisteredEventImpl<>(eventClass, this, codec, listener, registeredListener);
+        final EventListenerImpl<T> registered = new EventListenerImpl<>(eventClass, this, codec, listener, registeredListener);
 
         synchronized (this.writeLock) {
             this.eventListeners.computeIfAbsent(eventClass, k -> Collections.synchronizedList(new ArrayList<>())).add(registered);
@@ -60,9 +60,9 @@ public class EventsImpl implements Events {
         }
 
         // first execute all listeners for this event on this instance
-        final List<RegisteredEventImpl<?>> listeners = this.eventListeners.getOrDefault(event.getClass(), List.of());
+        final List<EventListenerImpl<?>> listeners = this.eventListeners.getOrDefault(event.getClass(), List.of());
 
-        for (final RegisteredEventImpl<?> registeredEvent : listeners) {
+        for (final EventListenerImpl<?> registeredEvent : listeners) {
             registeredEvent.onEventReceived(event);
         }
 
@@ -71,9 +71,9 @@ public class EventsImpl implements Events {
         messagingRegistrar.message(messagingRegistrar.bind(ChannelIdentifier.identifier("events:" + eventClass.getName()), codec), event).send();
     }
 
-    public boolean unregister(final RegisteredEventImpl<?> registeredEvent) {
+    public boolean unregister(final EventListenerImpl<?> registeredEvent) {
         synchronized (this.writeLock) {
-            final List<RegisteredEventImpl<?>> registeredEvents = this.eventListeners.get(registeredEvent.eventClass());
+            final List<EventListenerImpl<?>> registeredEvents = this.eventListeners.get(registeredEvent.eventClass());
             if (registeredEvents == null) {
                 return false;
             }
