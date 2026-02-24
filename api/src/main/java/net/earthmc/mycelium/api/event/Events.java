@@ -17,7 +17,7 @@ public interface Events {
      */
     @Deprecated(forRemoval = true)
     default <T extends Event> EventListener registerEvent(Class<T> eventClass, Consumer<T> listener) {
-        return registerEvent(eventClass, listener);
+        return registerListener(eventClass, listener);
     }
 
     /**

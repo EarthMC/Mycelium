@@ -29,7 +29,7 @@ public class EventsImpl implements Events {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Event> EventListener registerEvent(Class<T> eventClass, Consumer<T> listener) {
+    public <T extends Event> EventListener registerListener(Class<T> eventClass, Consumer<T> listener) {
         final JsonCodec<T> codec = (JsonCodec<T>) registeredEvents.get(eventClass);
         if (codec == null) {
             throw new IllegalArgumentException("Event class '" + eventClass.getName() + "' is not a registered event.");
@@ -53,7 +53,7 @@ public class EventsImpl implements Events {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void broadcast(Event event) {
+    public void broadcastEvent(Event event) {
         final Class<?> eventClass = implToInterface.get(event.getClass());
         if (eventClass == null) {
             throw new IllegalArgumentException("Event class '" + event.getClass().getName() + "' is not a registered event.");
