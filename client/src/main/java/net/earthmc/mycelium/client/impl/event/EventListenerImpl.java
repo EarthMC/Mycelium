@@ -19,8 +19,8 @@ public record EventListenerImpl<T extends Event>(Class<T> eventClass, EventsImpl
     public void onEventReceived(final Event eventInstance) {
         try {
             this.listener.accept((T) eventInstance);
-        } catch (RuntimeException e) {
-            LOGGER.warn("An exception occurred while executing a listener for event {}", eventClass.getName());
+        } catch (Exception e) {
+            LOGGER.warn("An exception occurred while executing a listener for event {}", eventClass.getName(), e);
         }
     }
 
