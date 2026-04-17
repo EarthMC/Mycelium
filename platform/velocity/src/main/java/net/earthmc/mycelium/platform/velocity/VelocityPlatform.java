@@ -117,7 +117,7 @@ public class VelocityPlatform extends AbstractPlatform {
         }
 
         // Periodically update player count, until a better supplier is added
-        this.proxy.getScheduler().buildTask(this, () -> this.playerCount = proxy.getPlayerCount())
+        this.proxy.getScheduler().buildTask(this, () -> this.playerCount = client.network().playerCount())
                 .repeat(Duration.ofSeconds(3))
                 .schedule();
     }
