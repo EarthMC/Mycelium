@@ -1,6 +1,5 @@
 package net.earthmc.mycelium.platform.velocity;
 
-import com.google.common.base.Suppliers;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -36,14 +35,12 @@ import redis.clients.jedis.AbstractPipeline;
 import redis.clients.jedis.Response;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 @Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
 public class VelocityPlatform extends AbstractPlatform {
@@ -59,7 +56,7 @@ public class VelocityPlatform extends AbstractPlatform {
 
     private final MyceliumClient client = MyceliumClient.forPlatform(this).autoregister().nativeProxy(client -> new NativeProxy(this.id(), client, this)).build();
 
-    private final Supplier<Integer> playerCountSupplier = Suppliers.memoizeWithExpiration(() -> client.network().playerCount(), 3L, TimeUnit.SECONDS);
+    private int playerCount = 0;
 
     private final String proxyPlayersKey = RedisKey.create(client, "proxy", this.id(), "players");
     private final String networkPlayersKey = RedisKey.create(client, "players");
@@ -118,6 +115,11 @@ public class VelocityPlatform extends AbstractPlatform {
                 }
             }
         }
+
+        // Periodically update player count, until a better supplier is added
+        this.proxy.getScheduler().buildTask(this, () -> this.playerCount = proxy.getPlayerCount())
+                .repeat(Duration.ofSeconds(3))
+                .schedule();
     }
 
     @Subscribe(priority = Short.MIN_VALUE / 2)
@@ -240,7 +242,7 @@ public class VelocityPlatform extends AbstractPlatform {
 
     @Subscribe(priority = Short.MIN_VALUE / 2)
     public void onProxyPing(ProxyPingEvent event) {
-        event.setPing(event.getPing().asBuilder().onlinePlayers(playerCountSupplier.get()).build());
+        event.setPing(event.getPing().asBuilder().onlinePlayers(this.playerCount).build());
     }
 
     private void cleanupPlayerForLogout(final Player player) {
