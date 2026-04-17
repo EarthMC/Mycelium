@@ -4,7 +4,6 @@ import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.api.PlayerImpl;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 
@@ -53,6 +52,6 @@ public class NativePlayer extends PlayerImpl {
 
     @Nullable
     private Player bukkitPlayer() {
-        return Bukkit.getServer().getPlayer(this.uuid());
+        return bukkitServer.getPlayer(this.uuid());
     }
 }
