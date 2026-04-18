@@ -164,6 +164,10 @@ public class VelocityPlatform extends AbstractPlatform {
                 // player is considered to still be on this proxy, clean up stale data
                 cleanupPlayer(username, uuidString);
                 return;
+            } else if (!this.id().equals(proxyId)) {
+                // TODO: message other proxy if player is still on, cleanup for now
+                cleanupPlayer(username, uuidString);
+                return;
             }
 
             alreadyLoggedIn = client.redis().sismember(RedisKey.create(client, "players"), uuidString);
