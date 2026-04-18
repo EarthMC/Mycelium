@@ -5,7 +5,7 @@ earthmc-conventions = "1.0.7"
 jspecify = { group = "org.jspecify", name = "jspecify", version = "1.0.0" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "26.0.2" }
 
-jedis = { group = "redis.clients", name = "jedis", version = "6.1.0" }
+jedis = { group = "redis.clients", name = "jedis", version = "7.4.1" }
 
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version = "2.0.17" }
 
