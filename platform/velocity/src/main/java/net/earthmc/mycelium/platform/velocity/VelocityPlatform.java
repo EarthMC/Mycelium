@@ -36,6 +36,7 @@ import redis.clients.jedis.Response;
 
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -126,11 +127,13 @@ public class VelocityPlatform extends AbstractPlatform {
     public void onProxyShutdown(ProxyShutdownEvent event) {
         this.client.redis().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
 
+        final Collection<Server> servers = client.network().servers();
+
         // Clean up after ourselves
         if (this.proxy.getPlayerCount() > 0) {
             try (final AbstractPipeline pipe = client.redis().pipelined()) {
                 for (final Player player : this.proxy.getAllPlayers()) {
-                    cleanupPlayer(player.getUsername(), player.getUniqueId().toString(), pipe);
+                    cleanupPlayer(player.getUsername(), player.getUniqueId().toString(), servers, pipe);
                 }
             }
         }
@@ -254,25 +257,29 @@ public class VelocityPlatform extends AbstractPlatform {
     }
 
     private void cleanupPlayer(final String username, final String uuid) {
+        final Collection<Server> servers = client.network().servers();
+
         try (final AbstractPipeline pipe = client.redis().pipelined()) {
-            cleanupPlayer(username, uuid, pipe);
+            cleanupPlayer(username, uuid, servers, pipe);
         }
     }
 
-    private void cleanupPlayer(final String username, final String uuid, final AbstractPipeline pipe) {
+    private void cleanupPlayer(final String username, final String uuid, final Collection<Server> servers, final AbstractPipeline pipe) {
         pipe.del(RedisKey.create(client, "name2uuid", username.toLowerCase(Locale.ROOT)));
 
         pipe.srem(proxyPlayersKey, uuid);
         pipe.srem(networkPlayersKey, uuid);
         pipe.del(RedisKey.create(client, "player", uuid));
 
-        for (final Server server : client.network().servers()) {
+        for (final Server server : servers) {
             // remove uuid from the player list of each server
             pipe.srem(RedisKey.create(client, "server", server.name(), "players"), uuid);
         }
     }
 
     private void cleanupStalePlayersOnProxy(final boolean shuttingDown) {
+        final Collection<Server> servers = client.network().servers();
+
         try (final AbstractPipeline pipe = client.redis().pipelined()) {
             Map<String, Response<List<String>>> playerData = new HashMap<>();
 
@@ -300,7 +307,7 @@ public class VelocityPlatform extends AbstractPlatform {
                 if (this.id().equals(proxy)) {
                     if (shuttingDown || this.proxy.getPlayer(name).isEmpty()) {
                         // proxy still points to this one despite player not being online, meaning this is stale data
-                        cleanupPlayer(name, uuid, pipe);
+                        cleanupPlayer(name, uuid, servers, pipe);
                     }
                 } else {
                     // player is on another proxy but still part of this proxy's set
