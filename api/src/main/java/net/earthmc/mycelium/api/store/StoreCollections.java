@@ -1,11 +1,10 @@
 package net.earthmc.mycelium.api.store;
 
-
 import net.earthmc.mycelium.api.serialization.JsonCodec;
+import net.earthmc.mycelium.api.store.collection.BlockingRelativeDeque;
 
 import java.util.Deque;
 import java.util.Set;
-import java.util.concurrent.BlockingDeque;
 
 /**
  * Provides data store backed wrappers for
@@ -29,7 +28,7 @@ public interface StoreCollections {
      * @return A new deque wrapper.
      * @param <T> The type for elements contained within the deque.
      */
-    <T> BlockingDeque<T> blockingDeque(final String key, final JsonCodec<T> codec);
+    <T> BlockingRelativeDeque<T> blockingDeque(final String key, final JsonCodec<T> codec);
 
     /**
      * Returns a new data store backed deque wrapper.

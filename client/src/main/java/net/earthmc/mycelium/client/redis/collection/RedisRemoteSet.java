@@ -8,7 +8,6 @@ import org.jspecify.annotations.NullMarked;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**

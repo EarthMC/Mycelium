@@ -1,17 +1,18 @@
 package net.earthmc.mycelium.client.redis.collection;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
+import net.earthmc.mycelium.api.store.collection.BlockingRelativeDeque;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.serialization.RedisCodec;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import redis.clients.jedis.args.ListPosition;
 import redis.clients.jedis.util.KeyValue;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  */
 @NullMarked
 @SuppressWarnings("unchecked")
-public class RedisRemoteDeque<T> implements BlockingDeque<T> {
+public class RedisRemoteDeque<T> implements BlockingRelativeDeque<T> {
     private final MyceliumClient client;
     private final String redisKey;
     private final RedisCodec<T> codec;
@@ -329,5 +330,25 @@ public class RedisRemoteDeque<T> implements BlockingDeque<T> {
         }
 
         return t;
+    }
+
+    @Override
+    public boolean addBefore(final T insert, final T pivot) {
+        return linsert(insert, pivot, ListPosition.BEFORE);
+    }
+
+    @Override
+    public boolean addAfter(final T insert, final T pivot) {
+        return linsert(insert, pivot, ListPosition.AFTER);
+    }
+
+    private boolean linsert(final T insert, final T pivot, final ListPosition listPosition) {
+        final long response = this.client.redis().linsert(this.redisKey, listPosition, this.codec.serialize(pivot), this.codec.serialize(insert));
+        if (response == -1) {
+            // pivot not found
+            throw new IllegalArgumentException("Provided pivot '" + pivot + "' is not an element in this in deque.");
+        }
+
+        return response > 0;
     }
 }
