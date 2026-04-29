@@ -20,9 +20,9 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.DefaultJedisClientConfig;
-import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.Protocol;
+import redis.clients.jedis.RedisClient;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.io.Closeable;
@@ -196,13 +196,12 @@ public class MyceliumClient implements Mycelium, Closeable {
         }
 
         public MyceliumClient build() {
-            final HostAndPort hostAndPort = new HostAndPort(this.redisHost, this.redisPort);
             final JedisClientConfig config = DefaultJedisClientConfig.builder()
                     .user(this.redisUsername)
                     .password(this.redisPassword)
                     .build();
 
-            final MyceliumClient client = new MyceliumClient(new UnifiedJedis(hostAndPort, config), this.platform);
+            final MyceliumClient client = new MyceliumClient(RedisClient.builder().hostAndPort(this.redisHost, this.redisPort).clientConfig(config).build(), this.platform);
 
             if (this.registerInstance) {
                 MyceliumProvider.register(client);

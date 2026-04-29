@@ -33,6 +33,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import redis.clients.jedis.AbstractPipeline;
 import redis.clients.jedis.Response;
+import redis.clients.jedis.params.SetParams;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -188,7 +189,7 @@ public class VelocityPlatform extends AbstractPlatform {
         final String username = player.getUsername().toLowerCase(Locale.ROOT);
 
         // Race condition check: kick the player if they connected to another proxy during login
-        if (client.redis().setnx(RedisKey.create(client, "name2uuid", username), uuid) == 0) {
+        if (client.redis().set(RedisKey.create(client, "name2uuid", username), uuid, SetParams.setParams().nx()) == null) {
             player.disconnect(Component.text(this.id() + ": ", NamedTextColor.RED).append(Component.translatable("multiplayer.disconnect.duplicate_login")));
             return;
         }
