@@ -77,4 +77,11 @@ public interface Store {
      * {@return a map with a live representation of all key-value pairs stored}
      */
     Map<String, String> asMap();
+
+    /**
+     * Provides extra store-related methods related to collections.
+     *
+     * @return The store collections instance.
+     */
+    StoreCollections collections();
 }

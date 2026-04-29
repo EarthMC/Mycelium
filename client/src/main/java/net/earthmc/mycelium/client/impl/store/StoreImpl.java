@@ -2,6 +2,7 @@ package net.earthmc.mycelium.client.impl.store;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.api.store.Store;
+import net.earthmc.mycelium.api.store.StoreCollections;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.serialization.RedisCodec;
 import net.earthmc.mycelium.client.redis.RedisKey;
@@ -22,9 +23,12 @@ public class StoreImpl implements Store {
     private final MyceliumClient client;
     private final String keyPrefix;
 
+    private final StoreCollections collections;
+
     public StoreImpl(final MyceliumClient client) {
         this.client = client;
         this.keyPrefix = RedisKey.create(client, "store") + ":";
+        this.collections = new StoreCollectionsImpl(client, this.keyPrefix);
     }
 
     @Override
@@ -65,6 +69,11 @@ public class StoreImpl implements Store {
     @Override
     public Map<String, String> asMap() {
         return LIVE_VIEW;
+    }
+
+    @Override
+    public StoreCollections collections() {
+        return this.collections;
     }
 
     private static final class MapViewImpl extends AbstractMap<String, String> {

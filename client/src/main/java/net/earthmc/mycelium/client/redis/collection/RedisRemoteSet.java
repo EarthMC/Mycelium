@@ -8,10 +8,13 @@ import org.jspecify.annotations.NullMarked;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * A wrapper around a redis set that converts the remote data to a usable class using the supplied codec. The remote set will be (de)serialized on each access, guaranteeing that the returned data is up-to-date.
+ *
+ * @param <T> the type of elements maintained by this set
  */
 @NullMarked
 public class RedisRemoteSet<T> extends AbstractSet<T> {

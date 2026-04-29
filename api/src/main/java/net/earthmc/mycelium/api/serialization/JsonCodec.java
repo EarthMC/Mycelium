@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
  * Describes a codec that is capable of (de)serializing an object to/from JSON.
  *
  * @param <T> The object type.
+ * @see Codecs
  */
 public interface JsonCodec<T> extends JsonSerializer<T>, JsonDeserializer<T> {
     /**
