@@ -2,13 +2,13 @@ package net.earthmc.mycelium.client.impl.store;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.api.store.StoreCollections;
+import net.earthmc.mycelium.api.store.collection.BlockingRelativeDeque;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.collection.RedisRemoteDeque;
 import net.earthmc.mycelium.client.redis.collection.RedisRemoteSet;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Set;
-import java.util.concurrent.BlockingDeque;
 
 @NullMarked
 public class StoreCollectionsImpl implements StoreCollections {
@@ -26,7 +26,7 @@ public class StoreCollectionsImpl implements StoreCollections {
     }
 
     @Override
-    public <T> BlockingDeque<T> blockingDeque(String key, JsonCodec<T> codec) {
+    public <T> BlockingRelativeDeque<T> blockingDeque(String key, JsonCodec<T> codec) {
         return new RedisRemoteDeque<>(this.client, this.keyPrefix + key, codec);
     }
 }
