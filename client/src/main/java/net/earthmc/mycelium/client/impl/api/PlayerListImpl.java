@@ -6,10 +6,14 @@ import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import redis.clients.jedis.AbstractPipeline;
+import redis.clients.jedis.Response;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,17 +30,24 @@ public interface PlayerListImpl extends PlayerList {
     @Override
     default @NonNull Collection<Player> players() {
         final Set<Player> players = new HashSet<>();
+        final Map<UUID, Response<String>> responses = new HashMap<>();
 
         final Set<String> onlineUUIDs = client().redis().smembers(playerSetKey());
 
-        for (final String uuid : onlineUUIDs) {
-            final String username = client().redis().hget(RedisKey.create(client().network().id(), "player", uuid), "name");
+        try (final AbstractPipeline pipeline = client().redis().pipelined()) {
+            for (final String uuid : onlineUUIDs) {
+                responses.put(UUID.fromString(uuid), pipeline.hget(RedisKey.create(client(), "player", uuid), "name"));
+            }
+        }
+
+        for (final Map.Entry<UUID, Response<String>> playerEntry : responses.entrySet()) {
+            final String username = playerEntry.getValue().get();
 
             if (username == null) {
                 continue;
             }
 
-            players.add(createPlayer(username, UUID.fromString(uuid)));
+            players.add(createPlayer(username, playerEntry.getKey()));
         }
 
         return Set.copyOf(players);
