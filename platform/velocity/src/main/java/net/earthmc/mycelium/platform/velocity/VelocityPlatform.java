@@ -281,10 +281,12 @@ public class VelocityPlatform extends AbstractPlatform {
     private void cleanupStalePlayersOnProxy(final boolean shuttingDown) {
         final Collection<Server> servers = client.network().servers();
 
+        final Collection<String> proxyPlayerUUIDs = client.redis().keys(proxyPlayersKey);
+
         try (final AbstractPipeline pipe = client.redis().pipelined()) {
             Map<String, Response<List<String>>> playerData = new HashMap<>();
 
-            for (final String uuid : client.redis().keys(proxyPlayersKey)) {
+            for (final String uuid : proxyPlayerUUIDs) {
                 final Response<List<String>> fields = pipe.hmget(RedisKey.create(client, "player", uuid), "name", "proxy");
 
                 playerData.put(uuid, fields);
