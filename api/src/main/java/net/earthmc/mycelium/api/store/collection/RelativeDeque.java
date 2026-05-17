@@ -27,4 +27,12 @@ public interface RelativeDeque<T> extends Deque<T> {
      * @throws IllegalArgumentException if the pivot is not part of this deque.
      */
     boolean addAfter(final T insert, final T pivot);
+
+    /**
+     * Returns the index of the element in this deque.
+     *
+     * @param element The element to find the index of.
+     * @return The index of the element in this deque, or -1 if not found.
+     */
+    long indexOf(final T element);
 }
