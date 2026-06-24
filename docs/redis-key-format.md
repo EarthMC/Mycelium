@@ -1,4 +1,6 @@
-## Redis Implementation
+## Redis Key Formats
+
+This file documents the redis keys used by Mycelium to make things work per-feature.
 
 {env} refers to the environment, i.e. prod
 {client} is a randomly generated string
@@ -46,3 +48,6 @@ Custom channels may be registered through the API
 
 ### KV Key Format
 `m:{env}:store:{key}`
+
+### Locks
+`m:{env}:lock:{key}`

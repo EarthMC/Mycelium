@@ -138,6 +138,10 @@ public class MessagingRegistrarImpl implements MessagingRegistrar {
         return new OutgoingMessageBuilderImpl<>(this.client, newMessageReference(), makeGlobalKey(identifier.channel()), true, data, identifier.codec());
     }
 
+    public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> internalPlatformMessage(ChannelIdentifier.Bound<T> identifier, T data) {
+        return new OutgoingMessageBuilderImpl<>(this.client, newMessageReference(), makePlatformKey(identifier.channel()), true, data, identifier.codec());
+    }
+
     public String newMessageReference() {
         return UUID.randomUUID().toString();
     }
