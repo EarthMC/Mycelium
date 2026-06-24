@@ -14,6 +14,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.scheduler.ScheduledTask;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.platform.PlatformType;
@@ -44,7 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-@Plugin(name = "Mycelium", id = "mycelium", version = "0.0.1", authors = "Warriorrr")
+@Plugin(name = "Mycelium", id = "mycelium", version = BuildConstants.VERSION, authors = "Warriorrr")
 public class VelocityPlatform extends AbstractPlatform {
     @Inject
     public ProxyServer proxy;
@@ -59,6 +60,7 @@ public class VelocityPlatform extends AbstractPlatform {
     private final MyceliumClient client = MyceliumClient.forPlatform(this).autoregister().nativeProxy(client -> new NativeProxy(this.id(), client, this)).build();
 
     private int playerCount = 0;
+    private ScheduledTask playerCountUpdateTask = null;
 
     private final String proxyPlayersKey = RedisKey.create(client, "proxy", this.id(), "players");
     private final String networkPlayersKey = RedisKey.create(client, "players");
@@ -119,13 +121,18 @@ public class VelocityPlatform extends AbstractPlatform {
         }
 
         // Periodically update player count, until a better supplier is added
-        this.proxy.getScheduler().buildTask(this, () -> this.playerCount = client.network().playerCount())
+        this.playerCountUpdateTask = this.proxy.getScheduler().buildTask(this, () -> this.playerCount = client.network().playerCount())
                 .repeat(Duration.ofSeconds(3))
                 .schedule();
     }
 
     @Subscribe(priority = Short.MIN_VALUE / 2)
     public void onProxyShutdown(ProxyShutdownEvent event) {
+        if (this.playerCountUpdateTask != null) {
+            this.playerCountUpdateTask.cancel();
+            this.playerCountUpdateTask = null;
+        }
+
         this.client.redis().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
 
         final Collection<Server> servers = client.network().servers();
@@ -142,6 +149,8 @@ public class VelocityPlatform extends AbstractPlatform {
         this.cleanupStalePlayersOnProxy(true);
 
         this.client.close();
+
+        logger.info("Mycelium v{} has been disabled.", BuildConstants.VERSION);
     }
 
     @Subscribe

@@ -14,6 +14,10 @@ tasks {
         dependsOn(shadowJar)
     }
 
+    compileJava {
+        dependsOn(generateTemplates)
+    }
+
     shadowJar {
         archiveBaseName.set("MyceliumVelocity")
         archiveClassifier.set("")
@@ -29,3 +33,14 @@ tasks {
         }
     }
 }
+
+val generateTemplates = tasks.register<Copy>("generateTemplates") {
+    val props = mapOf("version" to project.version)
+    inputs.properties(props)
+
+    from(file("src/main/templates"))
+    into(layout.buildDirectory.dir("generated/sources/templates"))
+    expand(props)
+}
+
+java.sourceSets["main"].java.srcDir(generateTemplates.map { it.outputs })
