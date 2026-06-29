@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.api.network;
 
 import net.earthmc.mycelium.api.network.command.Command;
+import net.kyori.adventure.audience.Audience;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -8,7 +9,7 @@ import java.util.UUID;
 /**
  * Represents a player connected to the network.
  */
-public interface Player {
+public interface Player extends Audience {
     /**
      * {@return the name of this player}
      */

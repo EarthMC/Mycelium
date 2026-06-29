@@ -4,12 +4,15 @@ import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.api.PlayerImpl;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
-public class NativePlayer extends PlayerImpl {
+public class NativePlayer extends PlayerImpl implements ForwardingAudience.Single {
     private final NativeServer server;
     private final org.bukkit.Server bukkitServer;
 
@@ -53,5 +56,11 @@ public class NativePlayer extends PlayerImpl {
     @Nullable
     private Player bukkitPlayer() {
         return bukkitServer.getPlayer(this.uuid());
+    }
+
+    @Override
+    public @NotNull Audience audience() {
+        final Player player = bukkitPlayer();
+        return player != null ? player : Audience.empty();
     }
 }

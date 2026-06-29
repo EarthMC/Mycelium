@@ -5,6 +5,8 @@ import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.api.ProxyImpl;
 import net.earthmc.mycelium.platform.velocity.VelocityPlatform;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @NullMarked
-public class NativeProxy extends ProxyImpl {
+public class NativeProxy extends ProxyImpl implements ForwardingAudience.Single {
     public final VelocityPlatform platform;
 
     public NativeProxy(String id, MyceliumClient client, VelocityPlatform platform) {
@@ -62,5 +64,10 @@ public class NativeProxy extends ProxyImpl {
         }
 
         return new NativePlayer(player.getUsername(), player.getUniqueId(), client(), this);
+    }
+
+    @Override
+    public Audience audience() {
+        return this.platform.proxy;
     }
 }

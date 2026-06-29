@@ -8,4 +8,5 @@ open module net.earthmc.mycelium.api {
     requires com.google.gson;
     requires static org.jspecify;
     requires static org.jetbrains.annotations;
+    requires net.kyori.adventure;
 }

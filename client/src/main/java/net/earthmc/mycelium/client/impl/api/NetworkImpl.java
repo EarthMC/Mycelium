@@ -1,13 +1,17 @@
 package net.earthmc.mycelium.client.impl.api;
 
+import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.network.Network;
 import net.earthmc.mycelium.api.network.Player;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.serialization.Codecs;
 import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import net.earthmc.mycelium.client.redis.collection.RedisRemoteSet;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -92,6 +96,11 @@ public class NetworkImpl implements Network, PlayerListImpl {
         }
 
         return Objects.requireNonNullElseGet(nativePlayer, () -> new PlayerImpl(username, uuid, client));
+    }
+
+    @Override
+    public void sendMessage(final Component message) {
+        client.messaging().message(client.messaging().bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), new SendJsonMessage(null, GsonComponentSerializer.gson().serializeToTree(message))).send();
     }
 
     private Server createServer(final String name) {

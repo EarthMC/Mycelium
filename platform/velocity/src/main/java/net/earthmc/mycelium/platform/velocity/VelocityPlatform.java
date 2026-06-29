@@ -24,12 +24,14 @@ import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.event.type.player.PlayerJoinedServerEvent;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
-import net.earthmc.mycelium.client.impl.model.SendMessage;
+import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
+import net.earthmc.mycelium.client.impl.model.SendRichMessage;
 import net.earthmc.mycelium.client.impl.model.TransferToServer;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import net.earthmc.mycelium.platform.velocity.impl.NativeProxy;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import redis.clients.jedis.AbstractPipeline;
@@ -95,7 +97,7 @@ public class VelocityPlatform extends AbstractPlatform {
             this.proxy.getCommandManager().executeAsync(player, payload.commandLine());
         });
 
-        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-message"), SendMessage.CODEC), incoming -> this.proxy.getPlayer(incoming.data().playerUUID()).ifPresent(player -> player.sendRichMessage(incoming.data().message())));
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-message"), SendRichMessage.CODEC), incoming -> this.proxy.getPlayer(incoming.data().playerUUID()).ifPresent(player -> player.sendRichMessage(incoming.data().message())));
 
         registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), incoming -> {
             final Player player = this.proxy.getPlayer(incoming.data().playerUUID()).orElse(null);
@@ -104,6 +106,21 @@ public class VelocityPlatform extends AbstractPlatform {
             if (player != null && target != null) {
                 player.createConnectionRequest(target).fireAndForget();
             }
+        });
+
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), incoming -> {
+            final UUID target = incoming.data().target();
+            final Component message = GsonComponentSerializer.gson().deserializeFromTree(incoming.data().messageJson());
+
+            if (target == null) {
+                proxy.sendMessage(message);
+            } else {
+                proxy.getPlayer(target).ifPresent(player -> player.sendMessage(message));
+            }
+        });
+
+        registrar.registerChannel(registrar.bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), incoming -> {
+            proxy.sendMessage(GsonComponentSerializer.gson().deserializeFromTree(incoming.data().messageJson()));
         });
 
         client.redis().sadd(RedisKey.create(client, "proxies"), this.id());

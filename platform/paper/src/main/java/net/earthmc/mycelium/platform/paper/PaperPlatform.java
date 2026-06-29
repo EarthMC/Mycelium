@@ -9,8 +9,11 @@ import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
-import net.earthmc.mycelium.client.impl.model.SendMessage;
+import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
+import net.earthmc.mycelium.client.impl.model.SendRichMessage;
 import net.earthmc.mycelium.client.redis.RedisKey;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -135,12 +138,30 @@ public class PaperPlatform extends AbstractPlatform implements Listener {
             }, null, 1L);
         });
 
-        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-message"), SendMessage.CODEC), incoming -> {
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-message"), SendRichMessage.CODEC), incoming -> {
             final Player player = this.server.getPlayer(incoming.data().playerUUID());
 
             if (player != null) {
                 player.sendRichMessage(incoming.data().message());
             }
+        });
+
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), incoming -> {
+            final UUID target = incoming.data().target();
+            final Component message = GsonComponentSerializer.gson().deserializeFromTree(incoming.data().messageJson());
+
+            if (target == null) {
+                server.sendMessage(message);
+            } else {
+                final Player player = server.getPlayer(target);
+                if (player != null) {
+                    player.sendMessage(message);
+                }
+            }
+        });
+
+        registrar.registerChannel(registrar.bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), incoming -> {
+            server.sendMessage(GsonComponentSerializer.gson().deserializeFromTree(incoming.data().messageJson()));
         });
     }
 

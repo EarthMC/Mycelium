@@ -1,5 +1,6 @@
 package net.earthmc.mycelium.api.network;
 
+import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
@@ -8,7 +9,7 @@ import java.util.Collection;
 /**
  * Represents the whole network being managed by mycelium.
  */
-public interface Network extends PlayerList {
+public interface Network extends PlayerList, Audience {
     /**
      * {@return the id of this network}
      */

@@ -4,6 +4,7 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 
@@ -11,6 +12,8 @@ dependencies {
     compileOnly(libs.jspecify)
     compileOnly(libs.jetbrains.annotations)
     compileOnly(libs.gson)
+
+    compileOnly(libs.adventure.api)
 }
 
 tasks {

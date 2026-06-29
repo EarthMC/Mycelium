@@ -6,7 +6,11 @@ import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.messaging.OutgoingMessageBuilderImpl;
+import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.redis.RedisKey;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -49,6 +53,11 @@ public class ServerImpl implements Server, PlayerListImpl {
     @Override
     public <T> OutgoingMessageBuilder<CompletableFuture<Boolean>, T> message(ChannelIdentifier.Bound<T> identifier, T data) {
         return new OutgoingMessageBuilderImpl<>(this.client, UUID.randomUUID().toString(), RedisKey.create(this.client.network().id(), "server", this.name, "channels", identifier.channel()), true, data, identifier.codec());
+    }
+
+    @Override
+    public void sendMessage(@NotNull final Component message) {
+        message(client.messaging().bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), new SendJsonMessage(null, GsonComponentSerializer.gson().serializeToTree(message))).send();
     }
 
     @Override

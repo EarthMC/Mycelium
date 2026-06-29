@@ -7,4 +7,4 @@ pluginManagement {
 
 rootProject.name = "Mycelium"
 
-include("api", "client", "examples", "platform:velocity", "platform:paper")
+include("api", "client", "examples", "platform:velocity", "platform:paper", "platform:standalone")

@@ -8,11 +8,14 @@ import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.api.PlayerImpl;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
-public class NativePlayer extends PlayerImpl {
+public class NativePlayer extends PlayerImpl implements ForwardingAudience.Single {
     private final NativeProxy proxy;
     private final ProxyServer proxyServer;
 
@@ -61,5 +64,11 @@ public class NativePlayer extends PlayerImpl {
     @Nullable
     private Player velocityPlayer() {
         return proxyServer.getPlayer(this.uuid()).orElse(null);
+    }
+
+    @Override
+    public @NotNull Audience audience() {
+        final Player player = velocityPlayer();
+        return player != null ? player : Audience.empty();
     }
 }

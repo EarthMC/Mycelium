@@ -5,6 +5,8 @@ import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.api.ServerImpl;
 import net.earthmc.mycelium.platform.paper.PaperLoader;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import org.bukkit.Server;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @NullMarked
-public class NativeServer extends ServerImpl {
+public class NativeServer extends ServerImpl implements ForwardingAudience.Single {
     private final Server bukkitServer;
     public final PaperLoader plugin;
 
@@ -67,5 +69,10 @@ public class NativeServer extends ServerImpl {
         }
 
         return new NativePlayer(player.getName(), player.getUniqueId(), client(), this);
+    }
+
+    @Override
+    public Audience audience() {
+        return bukkitServer;
     }
 }

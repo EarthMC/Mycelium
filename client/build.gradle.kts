@@ -11,4 +11,6 @@ dependencies {
     compileOnly(libs.jetbrains.annotations)
     compileOnly(libs.gson)
     compileOnly(libs.slf4j.api)
+
+    compileOnly(libs.adventure.serializer.gson)
 }

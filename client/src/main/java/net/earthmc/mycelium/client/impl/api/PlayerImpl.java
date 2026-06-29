@@ -8,8 +8,12 @@ import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
-import net.earthmc.mycelium.client.impl.model.SendMessage;
+import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
+import net.earthmc.mycelium.client.impl.model.SendRichMessage;
 import net.earthmc.mycelium.client.impl.model.TransferToServer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -85,7 +89,16 @@ public class PlayerImpl implements Player {
         final MessageRecipient recipient = Optional.ofNullable((MessageRecipient) proxy()).orElseGet(this::server);
 
         if (recipient != null) {
-            recipient.message(client.messaging().bind(ChannelIdentifier.identifier("send-message"), SendMessage.CODEC), new SendMessage(this.uuid, message)).send();
+            recipient.message(client.messaging().bind(ChannelIdentifier.identifier("send-message"), SendRichMessage.CODEC), new SendRichMessage(this.uuid, message)).send();
+        }
+    }
+
+    @Override
+    public void sendMessage(@NotNull final Component message) {
+        final MessageRecipient recipient = Optional.ofNullable((MessageRecipient) proxy()).orElseGet(this::server);
+
+        if (recipient != null) {
+            recipient.message(client.messaging().bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), new SendJsonMessage(this.uuid, GsonComponentSerializer.gson().serializeToTree(message))).send();
         }
     }
 

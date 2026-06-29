@@ -2,11 +2,12 @@ package net.earthmc.mycelium.api.network;
 
 import net.earthmc.mycelium.api.messaging.MessageRecipient;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
+import net.kyori.adventure.audience.Audience;
 
 /**
  * Represents a backend server that players can connect to.
  */
-public interface Server extends PlayerList, MessageRecipient {
+public interface Server extends PlayerList, MessageRecipient, Audience {
     /**
      * {@return the server name}
      */
