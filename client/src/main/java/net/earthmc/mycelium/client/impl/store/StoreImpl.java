@@ -1,7 +1,8 @@
 package net.earthmc.mycelium.client.impl.store;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
-import net.earthmc.mycelium.api.store.SetOptions;
+import net.earthmc.mycelium.api.store.params.HSetOptions;
+import net.earthmc.mycelium.api.store.params.SetOptions;
 import net.earthmc.mycelium.api.store.Store;
 import net.earthmc.mycelium.api.store.StoreCollections;
 import net.earthmc.mycelium.client.MyceliumClient;
@@ -9,6 +10,7 @@ import net.earthmc.mycelium.client.impl.serialization.RedisCodec;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import redis.clients.jedis.params.HSetExParams;
 import redis.clients.jedis.params.SetParams;
 import redis.clients.jedis.util.CompareCondition;
 
@@ -55,12 +57,12 @@ public class StoreImpl implements Store {
 
     @Override
     public <T> void set(String key, JsonCodec<T> codec, T value) {
-        client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value));
+        client.redis().set(keyPrefix + key, serialize(codec, value));
     }
 
     @Override
     public <T> void set(String key, JsonCodec<T> codec, T value, TemporalAmount expiration) {
-        this.set(key, RedisCodec.codecFor(codec).serialize(value), expiration);
+        this.set(key, serialize(codec, value), expiration);
     }
 
     @Override
@@ -83,7 +85,29 @@ public class StoreImpl implements Store {
             params.condition(CompareCondition.valueEq(string));
         }
 
-        return client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params) != null;
+        return client.redis().set(keyPrefix + key, serialize(codec, value), params) != null;
+    }
+
+    @Override
+    public <T> void hset(final String key, final String field, final JsonCodec<T> codec, final T value) {
+        client.redis().hset(keyPrefix + key, field, serialize(codec, value));
+    }
+
+    @Override
+    public <T> boolean hset(final String key, final String field, final JsonCodec<T> codec, final T value, final HSetOptions options) {
+        final HSetExParams params = HSetExParams.hSetExParams();
+
+        final TemporalAmount ex = options.expiration();
+        if (ex != null) {
+            params.ex(Duration.from(ex).getSeconds());
+        }
+        if (options.isNX()) {
+            params.fnx();
+        } else if (options.isXX()) {
+            params.fxx();
+        }
+
+        return client.redis().hsetex(keyPrefix + key, params, field, serialize(codec, value)) == 1;
     }
 
     private <T> String serialize(JsonCodec<T> codec, T value) {
@@ -97,7 +121,7 @@ public class StoreImpl implements Store {
 
     @Override
     public <T> boolean removeIfEquals(final String key, final JsonCodec<T> codec, final T value) {
-        return client.redis().delex(keyPrefix + key, CompareCondition.valueEq(RedisCodec.codecFor(codec).serialize(value))) > 0;
+        return client.redis().delex(keyPrefix + key, CompareCondition.valueEq(serialize(codec, value))) > 0;
     }
 
     @Override

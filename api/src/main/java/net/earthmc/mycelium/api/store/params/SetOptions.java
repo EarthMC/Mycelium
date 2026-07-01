@@ -1,4 +1,4 @@
-package net.earthmc.mycelium.api.store;
+package net.earthmc.mycelium.api.store.params;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import org.jetbrains.annotations.ApiStatus;
@@ -7,9 +7,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.temporal.TemporalAmount;
 import java.util.function.Function;
 
-public class SetOptions {
-    private @Nullable SetKeyword keyword = null;
-    private @Nullable TemporalAmount expiration = null;
+public class SetOptions extends BaseOptions {
     private @Nullable ValueEq<?> condition = null;
 
     public static SetOptions setOptions() {
@@ -18,39 +16,27 @@ public class SetOptions {
 
     private SetOptions() {}
 
+    @Override
     public SetOptions expiration(final @Nullable TemporalAmount expiration) {
-        this.expiration = expiration;
+        super.expiration(expiration);
         return this;
     }
 
+    @Override
     public SetOptions xx() {
-        this.keyword = SetKeyword.XX;
+        super.xx();
         return this;
     }
 
+    @Override
     public SetOptions nx() {
-        this.keyword = SetKeyword.NX;
+        super.nx();
         return this;
     }
 
     public <T> SetOptions valueEq(JsonCodec<T> codec, T value) {
         this.condition = new ValueEq<>(codec, value);
         return this;
-    }
-
-    @ApiStatus.Internal
-    public @Nullable TemporalAmount expiration() {
-        return this.expiration;
-    }
-
-    @ApiStatus.Internal
-    public boolean isNX() {
-        return this.keyword == SetKeyword.NX;
-    }
-
-    @ApiStatus.Internal
-    public boolean isXX() {
-        return this.keyword == SetKeyword.XX;
     }
 
     @ApiStatus.Internal
@@ -63,10 +49,5 @@ public class SetOptions {
         public String serialize(Function<JsonCodec<T>, Function<T, String>> functionFunction) {
             return functionFunction.apply(codec).apply(value);
         }
-    }
-
-    private enum SetKeyword {
-        NX,
-        XX
     }
 }

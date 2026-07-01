@@ -1,6 +1,8 @@
 package net.earthmc.mycelium.api.store;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
+import net.earthmc.mycelium.api.store.params.HSetOptions;
+import net.earthmc.mycelium.api.store.params.SetOptions;
 import org.jspecify.annotations.Nullable;
 
 import java.time.temporal.TemporalAmount;
@@ -77,6 +79,10 @@ public interface Store {
      * @return if the value was successfully set.
      */
     <T> boolean set(String key, JsonCodec<T> codec, T value, SetOptions options);
+
+    <T> void hset(String key, String field, JsonCodec<T> codec, T value);
+
+    <T> boolean hset(String key, String field, JsonCodec<T> codec, T value, HSetOptions options);
 
     /**
      * Removes the mapping for the specified key from the storage.
