@@ -67,11 +67,32 @@ public interface Store {
     <T> void set(String key, JsonCodec<T> codec, T value, TemporalAmount expiration);
 
     /**
+     * Sets a key to the given value in the store for up to a maximum amount of time.
+     *
+     * @param key The key to store the value at.
+     * @param codec The codec to use to serialize the value.
+     * @param value The value to set in the storage.
+     * @param options The options for setting the value with, i.e. expiration.
+     * @param <T> The type for the value.
+     */
+    <T> void set(String key, JsonCodec<T> codec, T value, SetOptions options);
+
+    /**
      * Removes the mapping for the specified key from the storage.
      * @param key The key to remove the mapping for.
      * @return Whether a value was removed as a result of this operation.
      */
     boolean remove(String key);
+
+    /**
+     * Removes the mapping for the specified key from the storage if the current value matches the provided value.
+     * @param key The key to remove the mapping for.
+     * @param codec The codec to use to serialize the value.
+     * @param value The value to compare against.
+     * @return Whether a value was removed as a result of this operation.
+     * @param <T> The type for the value.
+     */
+    <T> boolean removeIfEquals(String key, JsonCodec<T> codec, T value);
 
     /**
      * {@return a map with a live representation of all key-value pairs stored}

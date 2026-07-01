@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.client.impl.store;
 
 import net.earthmc.mycelium.api.serialization.JsonCodec;
+import net.earthmc.mycelium.api.store.SetOptions;
 import net.earthmc.mycelium.api.store.Store;
 import net.earthmc.mycelium.api.store.StoreCollections;
 import net.earthmc.mycelium.client.MyceliumClient;
@@ -9,6 +10,7 @@ import net.earthmc.mycelium.client.redis.RedisKey;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import redis.clients.jedis.params.SetParams;
+import redis.clients.jedis.util.CompareCondition;
 
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
@@ -62,8 +64,30 @@ public class StoreImpl implements Store {
     }
 
     @Override
+    public <T> void set(final String key, final JsonCodec<T> codec, final T value, final SetOptions options) {
+        final SetParams params = SetParams.setParams();
+
+        final TemporalAmount ex = options.expiration();
+        if (ex != null) {
+            params.ex(Duration.from(ex).getSeconds());
+        }
+        if (options.isNX()) {
+            params.nx();
+        } else if (options.isXX()) {
+            params.xx();
+        }
+
+        client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params);
+    }
+
+    @Override
     public boolean remove(String key) {
         return client.redis().del(keyPrefix + key) > 0;
+    }
+
+    @Override
+    public <T> boolean removeIfEquals(final String key, final JsonCodec<T> codec, final T value) {
+        return client.redis().delex(keyPrefix + key, CompareCondition.valueEq(RedisCodec.codecFor(codec).serialize(value))) > 0;
     }
 
     @Override
