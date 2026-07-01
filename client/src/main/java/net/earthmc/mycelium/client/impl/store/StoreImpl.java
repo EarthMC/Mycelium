@@ -77,7 +77,7 @@ public class StoreImpl implements Store {
             params.xx();
         }
 
-        client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params) != null;
+        return client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params) != null;
     }
 
     @Override
