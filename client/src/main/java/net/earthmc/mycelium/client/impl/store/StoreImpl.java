@@ -64,7 +64,7 @@ public class StoreImpl implements Store {
     }
 
     @Override
-    public <T> void set(final String key, final JsonCodec<T> codec, final T value, final SetOptions options) {
+    public <T> boolean set(final String key, final JsonCodec<T> codec, final T value, final SetOptions options) {
         final SetParams params = SetParams.setParams();
 
         final TemporalAmount ex = options.expiration();
@@ -77,7 +77,7 @@ public class StoreImpl implements Store {
             params.xx();
         }
 
-        client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params);
+        client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params) != null;
     }
 
     @Override

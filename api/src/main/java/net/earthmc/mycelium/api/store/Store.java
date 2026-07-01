@@ -74,8 +74,9 @@ public interface Store {
      * @param value The value to set in the storage.
      * @param options The options for setting the value with, i.e. expiration.
      * @param <T> The type for the value.
+     * @return if the value was successfully set.
      */
-    <T> void set(String key, JsonCodec<T> codec, T value, SetOptions options);
+    <T> boolean set(String key, JsonCodec<T> codec, T value, SetOptions options);
 
     /**
      * Removes the mapping for the specified key from the storage.
