@@ -77,7 +77,17 @@ public class StoreImpl implements Store {
             params.xx();
         }
 
+        final SetOptions.ValueEq<?> condition = options.condition();
+        if (condition != null) {
+            final String string = condition.serialize(codec2 -> v -> RedisCodec.codecFor(codec2).serialize(v));
+            params.condition(CompareCondition.valueEq(string));
+        }
+
         return client.redis().set(keyPrefix + key, RedisCodec.codecFor(codec).serialize(value), params) != null;
+    }
+
+    private <T> String serialize(JsonCodec<T> codec, T value) {
+        return RedisCodec.codecFor(codec).serialize(value);
     }
 
     @Override
