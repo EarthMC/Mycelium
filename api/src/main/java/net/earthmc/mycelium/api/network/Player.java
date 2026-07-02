@@ -1,10 +1,12 @@
 package net.earthmc.mycelium.api.network;
 
 import net.earthmc.mycelium.api.network.command.Command;
+import net.earthmc.mycelium.api.network.player.ServerTransferResult;
 import net.kyori.adventure.audience.Audience;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a player connected to the network.
@@ -53,5 +55,5 @@ public interface Player extends Audience {
      * Attempts to connect the player to the specified server, if that server is part of the proxy the player is currently connected to.
      * @param server The server to send the player to.
      */
-    void transferToServer(Server server);
+    CompletableFuture<ServerTransferResult> transferToServer(Server server);
 }

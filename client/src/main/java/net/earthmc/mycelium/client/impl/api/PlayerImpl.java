@@ -6,19 +6,25 @@ import net.earthmc.mycelium.api.network.Player;
 import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
+import net.earthmc.mycelium.api.network.player.ServerTransferResult;
+import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
 import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.impl.model.SendRichMessage;
+import net.earthmc.mycelium.client.impl.model.ServerTransferResultImpl;
 import net.earthmc.mycelium.client.impl.model.TransferToServer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class PlayerImpl implements Player {
     private final String username;
@@ -103,11 +109,21 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public void transferToServer(Server server) {
+    public CompletableFuture<ServerTransferResult> transferToServer(Server server) {
         final Proxy proxy = proxy();
 
         if (proxy != null) {
-            proxy.message(client.messaging().bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), new TransferToServer(this.uuid, server.name())).send();
+            CompletableFuture<ServerTransferResult> result = new CompletableFuture<>();
+
+            proxy.message(client.messaging().bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), new TransferToServer(this.uuid, server.name()))
+                .callback(options -> options.lifetime(Duration.ofSeconds(10)).onExpire(() -> result.complete(new ServerTransferResultImpl(false, Component.text("Connection timed out after 10 seconds.", NamedTextColor.RED)))), JsonCodec.simple(ServerTransferResultImpl.class), incoming -> {
+                    result.complete(incoming.data());
+                })
+                .send();
+
+            return result;
+        } else {
+            return CompletableFuture.completedFuture(new ServerTransferResultImpl(false, Component.text("You are not connected to a proxy", NamedTextColor.RED)));
         }
     }
 

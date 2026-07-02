@@ -26,6 +26,7 @@ import net.earthmc.mycelium.client.impl.event.type.player.PlayerJoinedServerEven
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
 import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.impl.model.SendRichMessage;
+import net.earthmc.mycelium.client.impl.model.ServerTransferResultImpl;
 import net.earthmc.mycelium.client.impl.model.TransferToServer;
 import net.earthmc.mycelium.client.redis.RedisKey;
 import net.earthmc.mycelium.platform.velocity.impl.NativeProxy;
@@ -104,7 +105,23 @@ public class VelocityPlatform extends AbstractPlatform {
             final RegisteredServer target = this.proxy.getServer(incoming.data().serverName()).orElse(null);
 
             if (player != null && target != null) {
-                player.createConnectionRequest(target).fireAndForget();
+                if (incoming.acceptsResponses()) {
+                    player.createConnectionRequest(target).connect().thenAccept(result -> {
+                        Component failureMessage = result.getReasonComponent().orElse(null);
+                        if (!result.isSuccessful() && failureMessage == null) {
+                            failureMessage = Component.text("ERR_" + result.getStatus(), NamedTextColor.RED);
+                        }
+
+                        incoming.buildResponse(new ServerTransferResultImpl(result.isSuccessful(), failureMessage)).send();
+                    }).exceptionally(throwable -> {
+                        incoming.buildResponse(new ServerTransferResultImpl(false, Component.text("Connection failed with an exception: " + throwable.getMessage(), NamedTextColor.RED))).send();
+                        return null;
+                    });
+                } else {
+                    player.createConnectionRequest(target).fireAndForget();
+                }
+            } else if (incoming.acceptsResponses()) {
+                incoming.buildResponse(new ServerTransferResultImpl(false, Component.text("The player or target server was not found on this proxy instance.", NamedTextColor.RED))).send();
             }
         });
 
