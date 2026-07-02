@@ -84,6 +84,10 @@ public interface Store {
 
     <T> boolean hset(String key, String field, JsonCodec<T> codec, T value, HSetOptions options);
 
+    <T> @Nullable T hget(String key, String field, JsonCodec<T> codec);
+
+    long hdel(String key, String... fields);
+
     /**
      * Removes the mapping for the specified key from the storage.
      * @param key The key to remove the mapping for.

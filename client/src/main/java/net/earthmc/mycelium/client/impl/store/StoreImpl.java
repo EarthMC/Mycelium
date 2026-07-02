@@ -110,6 +110,21 @@ public class StoreImpl implements Store {
         return client.redis().hsetex(keyPrefix + key, params, field, serialize(codec, value)) == 1;
     }
 
+    @Override
+    public @Nullable <T> T hget(final String key, final String field, final JsonCodec<T> codec) {
+        final String value = client.redis().hget(keyPrefix + key, field);
+        if (value == null) {
+            return null;
+        }
+
+        return RedisCodec.codecFor(codec).deserialize(value);
+    }
+
+    @Override
+    public long hdel(final String key, final String... fields) {
+        return client.redis().hdel(keyPrefix + key, fields);
+    }
+
     private <T> String serialize(JsonCodec<T> codec, T value) {
         return RedisCodec.codecFor(codec).serialize(value);
     }
