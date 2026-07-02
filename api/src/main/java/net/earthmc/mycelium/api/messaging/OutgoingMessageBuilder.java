@@ -2,6 +2,7 @@ package net.earthmc.mycelium.api.messaging;
 
 import net.earthmc.mycelium.api.messaging.callback.CallbackOptionsBuilder;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -20,6 +21,7 @@ public interface OutgoingMessageBuilder<R, T> {
      *
      * @see MessagingRegistrar#registerChannel(ChannelIdentifier.Bound, Consumer)
      */
+    @CheckReturnValue
     OutgoingMessageBuilder<R, T> replyChannel(@Nullable ChannelIdentifier identifier);
 
     /**
@@ -31,6 +33,7 @@ public interface OutgoingMessageBuilder<R, T> {
      * @return {@code this}
      * @param <N> The data type that you expect replies in.
      */
+    @CheckReturnValue
     <N> OutgoingMessageBuilder<R, T> callback(Consumer<CallbackOptionsBuilder> options, JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer);
 
     /**
@@ -43,6 +46,7 @@ public interface OutgoingMessageBuilder<R, T> {
      * @return {@code this}
      * @param <N> The data type that you expect replies in.
      */
+    @CheckReturnValue
     <N> OutgoingMessageBuilder<R, T> callback(JsonCodec<N> codec, Consumer<IncomingMessage<N>> consumer);
 
     /**
@@ -55,6 +59,7 @@ public interface OutgoingMessageBuilder<R, T> {
      * @param consumer The handler for the resulting data.
      * @return {@code this}
      */
+    @CheckReturnValue
     OutgoingMessageBuilder<R, T> callback(Consumer<CallbackOptionsBuilder> options, Consumer<IncomingMessage<T>> consumer);
 
     /**
@@ -68,6 +73,7 @@ public interface OutgoingMessageBuilder<R, T> {
      * @param consumer The handler for the resulting data.
      * @return {@code this}
      */
+    @CheckReturnValue
     OutgoingMessageBuilder<R, T> callback(@Nullable Consumer<IncomingMessage<T>> consumer);
 
     /**
