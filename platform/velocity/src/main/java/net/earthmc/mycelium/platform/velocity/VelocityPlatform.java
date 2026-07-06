@@ -169,7 +169,7 @@ public class VelocityPlatform extends AbstractPlatform {
 
         this.client.redis().srem(RedisKey.create(client.network().id(), "proxies"), this.id());
 
-        final Collection<Server> servers = client.network().servers();
+        final Collection<String> servers = client.network().servers().stream().map(Server::name).toList();
 
         // Clean up after ourselves
         if (this.proxy.getPlayerCount() > 0) {
@@ -301,30 +301,31 @@ public class VelocityPlatform extends AbstractPlatform {
     }
 
     private void cleanupPlayer(final String username, final String uuid) {
-        final Collection<Server> servers = client.network().servers();
+        final Collection<String> servers = client.network().servers().stream().map(Server::name).toList();
 
         try (final AbstractPipeline pipe = client.redis().pipelined()) {
             cleanupPlayer(username, uuid, servers, pipe);
         }
     }
 
-    private void cleanupPlayer(final String username, final String uuid, final Collection<Server> servers, final AbstractPipeline pipe) {
+    private void cleanupPlayer(final String username, final String uuid, final Collection<String> servers, final AbstractPipeline pipe) {
         pipe.del(RedisKey.create(client, "name2uuid", username.toLowerCase(Locale.ROOT)));
 
         pipe.srem(proxyPlayersKey, uuid);
         pipe.srem(networkPlayersKey, uuid);
         pipe.del(RedisKey.create(client, "player", uuid));
 
-        for (final Server server : servers) {
+        for (final String server : servers) {
             // remove uuid from the player list of each server
-            pipe.srem(RedisKey.create(client, "server", server.name(), "players"), uuid);
+            pipe.srem(RedisKey.create(client, "server", server, "players"), uuid);
         }
     }
 
     private void cleanupStalePlayersOnProxy(final boolean shuttingDown) {
-        final Collection<Server> servers = client.network().servers();
+        // The set of servers from Network#servers won't contain servers that aren't on or don't have mycelium installed on the backend
+        final Collection<String> serversWithPlayers = client.redis().keys(RedisKey.create(client, "server", "*", "players"));
 
-        final Collection<String> proxyPlayerUUIDs = client.redis().keys(proxyPlayersKey);
+        final Collection<String> proxyPlayerUUIDs = client.redis().smembers(proxyPlayersKey);
 
         try (final AbstractPipeline pipe = client.redis().pipelined()) {
             Map<String, Response<List<String>>> playerData = new HashMap<>();
@@ -353,7 +354,7 @@ public class VelocityPlatform extends AbstractPlatform {
                 if (this.id().equals(proxy)) {
                     if (shuttingDown || this.proxy.getPlayer(name).isEmpty()) {
                         // proxy still points to this one despite player not being online, meaning this is stale data
-                        cleanupPlayer(name, uuid, servers, pipe);
+                        cleanupPlayer(name, uuid, serversWithPlayers, pipe);
                     }
                 } else {
                     // player is on another proxy but still part of this proxy's set
