@@ -116,7 +116,7 @@ public class PlayerImpl implements Player {
             CompletableFuture<ServerTransferResult> result = new CompletableFuture<>();
 
             proxy.message(client.messaging().bind(ChannelIdentifier.identifier("transfer-to-server"), TransferToServer.CODEC), new TransferToServer(this.uuid, server.name()))
-                .callback(options -> options.lifetime(Duration.ofSeconds(10)).onExpire(() -> result.complete(new ServerTransferResultImpl(false, Component.text("Connection timed out after 10 seconds.", NamedTextColor.RED)))), JsonCodec.simple(ServerTransferResultImpl.class), incoming -> {
+                .callback(options -> options.lifetime(Duration.ofSeconds(60)).onExpire(() -> result.complete(new ServerTransferResultImpl(false, Component.text("Connection timed out after 60 seconds.", NamedTextColor.RED)))), JsonCodec.simple(ServerTransferResultImpl.class), incoming -> {
                     result.complete(incoming.data());
                 })
                 .send();
