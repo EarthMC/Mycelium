@@ -56,4 +56,10 @@ public interface Player extends Audience {
      * @param server The server to send the player to.
      */
     CompletableFuture<ServerTransferResult> transferToServer(Server server);
+
+    /**
+     * Attempts to connect the player to the specified server, if that server is part of the proxy the player is currently connected to.
+     * @param serverName The name of the server to send the player to.
+     */
+    CompletableFuture<ServerTransferResult> transferToServer(String serverName);
 }

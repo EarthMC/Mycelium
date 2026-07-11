@@ -4,7 +4,6 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.earthmc.mycelium.api.network.Proxy;
-import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.api.network.player.ServerTransferResult;
 import net.earthmc.mycelium.client.MyceliumClient;
@@ -57,9 +56,9 @@ public class NativePlayer extends PlayerImpl implements ForwardingAudience.Singl
     }
 
     @Override
-    public CompletableFuture<ServerTransferResult> transferToServer(Server server) {
+    public CompletableFuture<ServerTransferResult> transferToServer(final String server) {
         final Player player = velocityPlayer();
-        final RegisteredServer registeredServer = proxyServer.getServer(server.name()).orElse(null);
+        final RegisteredServer registeredServer = proxyServer.getServer(server).orElse(null);
 
         if (player != null && registeredServer != null) {
             return player.createConnectionRequest(registeredServer).connect().thenApply(result -> (ServerTransferResult) new ServerTransferResultImpl(result.isSuccessful(), result.getReasonComponent().orElse(null)))
