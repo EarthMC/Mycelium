@@ -68,6 +68,16 @@ public class NativePlayer extends PlayerImpl implements ForwardingAudience.Singl
         }
     }
 
+    @Override
+    public CompletableFuture<Boolean> kick(final Component reason) {
+        final Player player = velocityPlayer();
+        if (player != null) {
+            player.disconnect(reason);
+        }
+
+        return CompletableFuture.completedFuture(player != null);
+    }
+
     @Nullable
     private Player velocityPlayer() {
         return proxyServer.getPlayer(this.uuid()).orElse(null);

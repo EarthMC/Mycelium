@@ -3,6 +3,7 @@ package net.earthmc.mycelium.api.network;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.api.network.player.ServerTransferResult;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -62,4 +63,12 @@ public interface Player extends Audience {
      * @param serverName The name of the server to send the player to.
      */
     CompletableFuture<ServerTransferResult> transferToServer(String serverName);
+
+    /**
+     * Disconnects this player from the network with the specified reason.
+     *
+     * @param reason The reason to kick the player for.
+     * @return A future that indicates whether the player was successfully kicked
+     */
+    CompletableFuture<Boolean> kick(final Component reason);
 }

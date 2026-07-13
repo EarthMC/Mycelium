@@ -1,6 +1,7 @@
 package net.earthmc.mycelium.platform.velocity;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.event.EventTask;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
@@ -18,11 +19,13 @@ import com.velocitypowered.api.scheduler.ScheduledTask;
 import net.earthmc.mycelium.api.messaging.ChannelIdentifier;
 import net.earthmc.mycelium.api.messaging.MessagingRegistrar;
 import net.earthmc.mycelium.api.platform.PlatformType;
+import net.earthmc.mycelium.api.serialization.Codecs;
 import net.earthmc.mycelium.client.AbstractPlatform;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.event.type.player.PlayerJoinedServerEvent;
+import net.earthmc.mycelium.client.impl.model.KickPlayer;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
 import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.impl.model.SendRichMessage;
@@ -140,6 +143,15 @@ public class VelocityPlatform extends AbstractPlatform {
             proxy.sendMessage(GsonComponentSerializer.gson().deserializeFromTree(incoming.data().messageJson()));
         });
 
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("kick-player"), KickPlayer.CODEC), incoming -> {
+            incoming.buildResponse(Codecs.BOOLEAN, proxy.getPlayer(incoming.data().target())
+                    .map(player -> {
+                        player.disconnect(incoming.data().reason());
+                        return true;
+                    }).orElse(false))
+                .send();
+        });
+
         client.redis().sadd(RedisKey.create(client, "proxies"), this.id());
 
         // Removes stale data for players who are still considered to be on this proxy and currently offline
@@ -188,41 +200,66 @@ public class VelocityPlatform extends AbstractPlatform {
     }
 
     @Subscribe
-    public void onPreLogin(PreLoginEvent event) {
-        UUID uuid = event.getUniqueId();
+    public EventTask onPreLogin(PreLoginEvent event) {
+        String uuid = event.getUniqueId() != null ? event.getUniqueId().toString() : null;
         final String username = event.getUsername().toLowerCase(Locale.ROOT);
 
         boolean alreadyLoggedIn = false;
 
         if (uuid == null) {
-            final String uuidString = client.redis().get(RedisKey.create(client, "name2uuid", username));
+            uuid = client.redis().get(RedisKey.create(client, "name2uuid", username));
 
-            if (uuidString != null) {
-                uuid = UUID.fromString(uuidString);
+            if (uuid != null) {
                 alreadyLoggedIn = true;
             }
         }
 
         if (uuid != null) {
-            final String uuidString = uuid.toString();
-
-            final String proxyId = client.redis().hget(RedisKey.create(client, "player", uuidString), "proxy");
-            if (this.id().equals(proxyId) && proxy.getPlayer(uuid).isEmpty()) {
+            final String proxyId = client.redis().hget(RedisKey.create(client, "player", uuid), "proxy");
+            if (this.id().equals(proxyId) && proxy.getPlayer(UUID.fromString(uuid)).isEmpty()) {
                 // player is considered to still be on this proxy, clean up stale data
-                cleanupPlayer(username, uuidString);
-                return;
-            } else if (!this.id().equals(proxyId)) {
-                // TODO: message other proxy if player is still on, cleanup for now
-                cleanupPlayer(username, uuidString);
-                return;
+                cleanupPlayer(username, uuid);
+                return null;
             }
 
-            alreadyLoggedIn = client.redis().sismember(RedisKey.create(client, "players"), uuidString);
+            alreadyLoggedIn |= client.redis().sismember(RedisKey.create(client, "players"), uuid);
         }
 
-        if (alreadyLoggedIn) {
-            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text(this.id() + ": You are already connected to this server.", NamedTextColor.RED)));
+        if (!alreadyLoggedIn) {
+            return null;
         }
+
+        final net.earthmc.mycelium.api.network.Player player = client.network().getPlayerByUUID(UUID.fromString(uuid));
+        if (player == null) {
+            // player data is in an inconsistent state, since the player is both part of the set and null when we look for it.
+            if (proxy.getPlayer(UUID.fromString(uuid)).isPresent()) {
+                // let the proxy decide what to do with this duplicate login
+                // if kicked, hopefully the disconnect event where we clean up data is run before the post login event where we also check if they're already logged in. At worst the player just needs to relog.
+                // if not kicked, the data will remain untouched & cleaned up when the currently online player leaves.
+                return null;
+            } else {
+                // not online on this proxy and inconsistent data
+                cleanupPlayer(username, uuid);
+                return null;
+            }
+        }
+
+        // TODO: read velocity config for whether to kick the existing player or prevent login
+
+        logger.info("Disconnecting {} for logging in from another location.", username);
+
+        final String finalUuid = uuid;
+        return EventTask.resumeWhenComplete(player.kick(Component.text(this.id() + ": ", NamedTextColor.RED).append(Component.translatable("multiplayer.disconnect.duplicate_login")))
+            .thenAccept(kicked -> {
+                if (!kicked) {
+                    logger.warn("Failed to kick already logged in player {} ({}), rejecting login.", username, finalUuid);
+                    event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text(this.id() + ": You are already connected to this server.", NamedTextColor.RED)));
+                    return;
+                }
+
+                // Extra cleanup in case the proxy the player got kicked from hasn't gotten to it yet.
+                cleanupPlayer(username, finalUuid);
+            }));
     }
 
     @Subscribe

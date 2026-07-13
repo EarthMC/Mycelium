@@ -7,8 +7,10 @@ import net.earthmc.mycelium.api.network.Proxy;
 import net.earthmc.mycelium.api.network.Server;
 import net.earthmc.mycelium.api.network.command.Command;
 import net.earthmc.mycelium.api.network.player.ServerTransferResult;
+import net.earthmc.mycelium.api.serialization.Codecs;
 import net.earthmc.mycelium.api.serialization.JsonCodec;
 import net.earthmc.mycelium.client.MyceliumClient;
+import net.earthmc.mycelium.client.impl.model.KickPlayer;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
 import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.impl.model.SendRichMessage;
@@ -130,6 +132,27 @@ public class PlayerImpl implements Player {
         } else {
             return CompletableFuture.completedFuture(new ServerTransferResultImpl(false, Component.text("You are not connected to a proxy", NamedTextColor.RED)));
         }
+    }
+
+    @Override
+    public CompletableFuture<Boolean> kick(final Component reason) {
+        MessageRecipient recipient = proxy();
+        if (recipient == null) {
+            recipient = server();
+        }
+
+        if (recipient == null) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+        recipient.message(client.messaging().bind(ChannelIdentifier.identifier("kick-player"), KickPlayer.CODEC), new KickPlayer(this.uuid, reason))
+            .callback(options -> options.lifetime(Duration.ofSeconds(10)).onExpire(() -> future.complete(false)), Codecs.BOOLEAN, incoming -> {
+                future.complete(incoming.data());
+            })
+            .send();
+
+        return future;
     }
 
     @Override

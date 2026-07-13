@@ -6,11 +6,13 @@ import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.api.PlayerImpl;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class NativePlayer extends PlayerImpl implements ForwardingAudience.Single {
     private final NativeServer server;
@@ -51,6 +53,16 @@ public class NativePlayer extends PlayerImpl implements ForwardingAudience.Singl
         if (player != null) {
             player.sendRichMessage(message);
         }
+    }
+
+    @Override
+    public CompletableFuture<Boolean> kick(final Component reason) {
+        final Player player = bukkitPlayer();
+        if (player != null) {
+            player.kick(reason);
+        }
+
+        return CompletableFuture.completedFuture(player != null);
     }
 
     @Nullable

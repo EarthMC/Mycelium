@@ -8,6 +8,7 @@ import net.earthmc.mycelium.client.AbstractPlatform;
 import net.earthmc.mycelium.api.network.command.ConsoleCommand;
 import net.earthmc.mycelium.client.MyceliumClient;
 import net.earthmc.mycelium.client.impl.messaging.MessagingRegistrarImpl;
+import net.earthmc.mycelium.client.impl.model.KickPlayer;
 import net.earthmc.mycelium.client.impl.model.PlayerCommandRequest;
 import net.earthmc.mycelium.client.impl.model.SendJsonMessage;
 import net.earthmc.mycelium.client.impl.model.SendRichMessage;
@@ -162,6 +163,15 @@ public class PaperPlatform extends AbstractPlatform implements Listener {
 
         registrar.registerChannel(registrar.bind(ChannelIdentifier.identifier("send-json-message"), SendJsonMessage.CODEC), incoming -> {
             server.sendMessage(GsonComponentSerializer.gson().deserializeFromTree(incoming.data().messageJson()));
+        });
+
+        registrar.registerPlatformChannel(registrar.bind(ChannelIdentifier.identifier("kick-player"), KickPlayer.CODEC), incoming -> {
+            final Player player = server.getPlayer(incoming.data().target());
+            if (player != null) {
+                player.kick(incoming.data().reason());
+            }
+
+            incoming.buildResponse(Codecs.BOOLEAN, player != null).send();
         });
     }
 
