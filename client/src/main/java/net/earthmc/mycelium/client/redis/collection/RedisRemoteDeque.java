@@ -344,7 +344,12 @@ public class RedisRemoteDeque<T> implements BlockingRelativeDeque<T> {
 
     @Override
     public long indexOf(final T element) {
-        return this.client.redis().lpos(this.redisKey, this.codec.serialize(element));
+        final Long index = this.client.redis().lpos(this.redisKey, this.codec.serialize(element));
+        if (index == null) {
+            return -1;
+        }
+
+        return index;
     }
 
     private boolean linsert(final T insert, final T pivot, final ListPosition listPosition) {
