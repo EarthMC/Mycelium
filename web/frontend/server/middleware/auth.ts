@@ -6,7 +6,7 @@ export default defineEventHandler((event) => {
     return;
   }
 
-  const token = getCookie(event, "access-token");
+  const token = getCookie(event, "mycelium-access-token");
   const valid = token === useRuntimeConfig().accessToken;
 
   if (path === "/auth") {

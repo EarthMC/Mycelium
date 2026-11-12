@@ -10,9 +10,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  setCookie(event, "access-token", token, {
+  setCookie(event, "mycelium-access-token", token, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
+    secure: true,
     path: "/",
   });
 

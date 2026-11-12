@@ -15,7 +15,7 @@ export const api = $fetch.create({
 
     options.headers.set("Authorization", `Bearer ${useRuntimeConfig().backendAuthToken}`);
 
-    const accessToken = getCookie(event, "access-token");
+    const accessToken = getCookie(event, "mycelium-access-token");
     if (accessToken) {
       options.headers.set("X-Mycelium-Access", accessToken)
     }
