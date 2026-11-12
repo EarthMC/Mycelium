@@ -31,6 +31,9 @@ export default defineNuxtConfig({
     imports: {
       dirs: ["./server/utils"],
     },
+    experimental: {
+      asyncContext: true,
+    },
   },
 
   eslint: {
