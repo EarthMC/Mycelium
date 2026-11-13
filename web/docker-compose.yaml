@@ -1,0 +1,32 @@
+name: mycelium-web
+
+# Example compose file for running Mycelium web in docker/podman, with an external Redis instance.
+# The backend and frontend access tokens must be changed before being put into production.
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: web/backend/Dockerfile
+    environment:
+      SERVER_PORT: 8098
+      SECURITY_BACKEND_TOKEN: changeme
+      SECURITY_FRONTEND_ACCESS_TOKEN: 123
+      MYCELIUM_ENVIRONMENT: prod
+      MYCELIUM_REDIS_HOST: host.docker.internal
+      MYCELIUM_REDIS_PORT: 6379
+      MYCELIUM_REDIS_USERNAME:
+      MYCELIUM_REDIS_PASSWORD:
+
+  frontend:
+    build: frontend/
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: frontend/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      NUXT_BACKEND_URL: http://backend:8098
+      NUXT_BACKEND_AUTH_TOKEN: changeme
+      NUXT_ACCESS_TOKEN: 123
