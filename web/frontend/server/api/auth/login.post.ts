@@ -10,10 +10,12 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const secure = useRuntimeConfig().secureCookie || true;
+
   setCookie(event, "mycelium-access-token", token, {
     httpOnly: true,
     sameSite: "strict",
-    secure: true,
+    secure,
     path: "/",
   });
 

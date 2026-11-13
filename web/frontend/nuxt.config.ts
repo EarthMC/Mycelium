@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     accessToken: "123", // Used to access the dashboard
     backendAuthToken: "changeme", // Used to authenticate with the backend
     backendUrl: "http://localhost:8098",
+    secureCookie: true,
   },
 
   routeRules: {
