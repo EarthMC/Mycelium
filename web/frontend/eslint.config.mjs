@@ -14,6 +14,7 @@ export default withNuxt(
 
   {
     rules: {
+      "@stylistic/linebreak-style": ["error", "unix"],
       "vue/no-multiple-template-root": "off",
       "vue/max-attributes-per-line": ["error", { singleline: 3 }],
     },

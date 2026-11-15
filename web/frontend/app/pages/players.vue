@@ -367,8 +367,8 @@ function onDeleteRows() {
             <UInputNumber
               v-model="pagination.pageSize"
               size="sm"
-              @update:modelValue="(newSize: number) => table?.tableApi?.setPageSize(Math.max(newSize, 1))"
               :step="5"
+              @update:model-value="(newSize: number) => table?.tableApi?.setPageSize(Math.max(newSize, 1))"
             />
           </div>
           <UPagination

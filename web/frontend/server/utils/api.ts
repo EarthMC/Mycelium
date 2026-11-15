@@ -6,8 +6,8 @@ export const api = $fetch.create({
     if (!event) {
       throw createError({
         statusCode: 500,
-        statusMessage: "Could not find current request context"
-      })
+        statusMessage: "Could not find current request context",
+      });
     }
 
     // pass both the frontend server's token and the dashboard access token to the backend for validation
@@ -17,7 +17,7 @@ export const api = $fetch.create({
 
     const accessToken = getCookie(event, "mycelium-access-token");
     if (accessToken) {
-      options.headers.set("X-Mycelium-Access", accessToken)
+      options.headers.set("X-Mycelium-Access", accessToken);
     }
   },
 });
