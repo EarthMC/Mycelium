@@ -1,14 +1,15 @@
 ## Redis Key Formats
 
-This file documents the redis keys used by Mycelium to make things work per-feature.
+This file documents the Redis keys used by Mycelium to make things work per-feature, which can be useful when manually reading/modifying data or when implementing new features.
 
-{env} refers to the environment, i.e. prod
-{client} is a randomly generated string
+{env} refers to the environment, `prod` by default.
+
+{client} is a randomly generated string, a v4 UUID by default.
 
 ### Shared network-wide channels
 
 #### `m:{env}:player:{uuid}`
-Hash containing all the needed player data
+Hash containing all the needed player data:
 - name
 - proxy
 - server
