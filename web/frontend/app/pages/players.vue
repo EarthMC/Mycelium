@@ -243,7 +243,7 @@ const name = computed({
 
 const pagination = ref({
   pageIndex: 0,
-  pageSize: 25,
+  pageSize: 50,
 });
 
 function onDeleteRows() {
@@ -361,7 +361,16 @@ function onDeleteRows() {
           {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
         </div>
 
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-3">
+          <div class="flex flex-row gap-3">
+            <p>Rows per page</p>
+            <UInputNumber
+              v-model="pagination.pageSize"
+              size="sm"
+              @update:modelValue="(newSize: number) => table?.tableApi?.setPageSize(Math.max(newSize, 1))"
+              :step="5"
+            />
+          </div>
           <UPagination
             :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
             :items-per-page="table?.tableApi?.getState().pagination.pageSize"
